@@ -1,5 +1,5 @@
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<link href="/assets/index.css" rel="stylesheet">
+<link href="/assets/css/index.css" rel="stylesheet">
 
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -10,29 +10,61 @@
 {{ end }}
 {{if .error}}
     <div class="alert alert-danger" role="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
         {{ .error }}
     </div>
 {{end}}
-<div class="container register-form">
-    <form METHOD="POST" ACTION="/login">
-        <div class="form">
-            <div class="note">
-                <p>Login Page</p>
-            </div>
+<section class="forms-section">
+  <div class="forms">
+    <div class="form-wrapper is-active">
+      <button type="button" class="switcher switcher-login">
+        Login
+        <span class="underline"></span>
+      </button>
+      <form class="form form-login" METHOD="POST" ACTION="/login">
+        <fieldset>
+          <legend>Please, enter your email and password for login.</legend>
+          <div class="input-block">
+            <label for="login-email">Username</label>
+            <input id="login-email" type="text" name="username" required>
+          </div>
+          <div class="input-block">
+            <label for="login-password">Password</label>
+            <input id="login-password" type="password" name="password" required>
+          </div>
+        </fieldset>
+        <button type="submit" class="btn-login">Login</button>
+      </form>
+    </div>
+    <div class="form-wrapper">
+      <button type="button" class="switcher switcher-signup">
+        Sign Up
+        <span class="underline"></span>
+      </button>
+      <form class="form form-signup">
+        <fieldset>
+          <legend>Please, enter your email, password and password confirmation for sign up.</legend>
+          <div class="input-block">
+            <label for="signup-email">Profile Name</label>
+            <input id="signup-email" type="text" required>
+          </div>
+          <div class="input-block">
+            <label for="signup-email">Username</label>
+            <input id="signup-email" type="text" required>
+          </div>
+          <div class="input-block">
+            <label for="signup-password">Password</label>
+            <input id="signup-password" type="password" required>
+          </div>
+          <div class="input-block">
+            <label for="signup-password-confirm">Confirm password</label>
+            <input id="signup-password-confirm" type="password" required>
+          </div>
+        </fieldset>
+        <button type="submit" class="btn-signup">Continue</button>
+      </form>
+    </div>
+  </div>
+</section>
 
-            <div class="form-content">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="username" name="username" value=""/>
-                        </div>
-                        <div class="form-group">
-                            <input type="password" class="form-control" placeholder="password" name="password" value=""/>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" class="btnSubmit">Login</button>
-            </div>
-        </div>
-    </form>
-</div>
+<script src="assets/js/login.js"></script>
