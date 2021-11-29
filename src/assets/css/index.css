@@ -1,300 +1,218 @@
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    font-family: Roboto, -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
-    background: #3b4465;
+  --twitter-color: #50b7f5;
+  --twitter-background: #e6ecf0;
 }
 
-
-.closebtn {
-  margin-left: 15px;
-  font-weight: bold;
-  float: right;
-  font-size: 22px;
-  line-height: 20px;
+.sidebarOption {
+  display: flex;
+  align-items: center;
   cursor: pointer;
-  transition: 0.3s;
 }
 
-.closebtn:hover {
+.sidebarOption .material-icons,
+.fa-twitter {
+  padding: 20px;
+}
+
+.sidebarOption button {
+  border: none;
+  background-color: inherit;
+  font-weight: 800;
+  font-size: 20px;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.sidebarOption button:hover {
+  color: var(--twitter-color);
+}
+
+.sidebarOption h2 {
+  font-weight: 800;
+  font-size: 20px;
+  margin-right: 20px;
+}
+
+.sidebarOption:hover {
+  background-color: var(--twitter-background);
+  border-radius: 30px;
+  color: var(--twitter-color);
+  transition: color 100ms ease-out;
+}
+
+.sidebarOption.active {
+  color: var(--twitter-color);
+}
+
+body {
+  display: flex;
+  height: 100vh;
+  max-width: 1300px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 10px;
+}
+
+.sidebar {
+  border-right: 1px solid var(--twitter-background);
+  flex: 0.2;
+
+  min-width: 250px;
+  margin-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+/* feed */
+.feed {
+  flex: 0.5;
+  border-right: 1px solid var(--twitter-background);
+  min-width: fit-content;
+  overflow-y: scroll;
+}
+
+.feed__header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 100;
+  border: 1px solid var(--twitter-background);
+  padding: 15px 20px;
+}
+
+.feed__header h2 {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.feed::-webkit-scrollbar {
+  display: none;
+}
+
+.feed {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* tweet box */
+.tweetbox__input img {
+  border-radius: 50%;
+  height: 40px;
+}
+
+.tweetBox {
+  padding-bottom: 10px;
+  border-bottom: 8px solid var(--twitter-background);
+  padding-right: 10px;
+}
+
+.tweetBox form {
+  display: flex;
+  flex-direction: column;
+}
+
+.tweetbox__input {
+  display: flex;
+  padding: 20px;
+}
+
+.tweetbox__input input {
+  flex: 1;
+  margin-left: 20px;
+  font-size: 20px;
+  border: none;
+  outline: none;
+}
+
+.tweetBox__tweetButton {
+  background-color: var(--twitter-color);
+  border: none;
   color: white;
+  font-weight: 900;
+
+  border-radius: 30px;
+  width: 80px;
+  height: 40px;
+  margin-top: 20px;
+  margin-left: auto;
 }
 
-.forms-section {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+/* post */
+.post__avatar img {
+  border-radius: 50%;
+  height: 40px;
 }
 
-.section-title {
-    font-size: 32px;
-    letter-spacing: 1px;
-    color: #fff;
+.post {
+  display: flex;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--twitter-background);
+  padding-bottom: 10px;
 }
 
-.forms {
-    display: flex;
-    align-items: flex-start;
-    margin-top: 30px;
+.post__body img {
+  width: 450px;
+  object-fit: contain;
+  border-radius: 20px;
 }
 
-.form-wrapper {
-    animation: hideLayer .3s ease-out forwards;
+.post__badge {
+  font-size: 14px !important;
+  color: var(--twitter-color);
+  margin-right: 5px;
 }
 
-.form-wrapper.is-active {
-    animation: showLayer .3s ease-in forwards;
+.post__headerSpecial {
+  font-weight: 600;
+  font-size: 12px;
+  color: gray;
 }
 
-@keyframes showLayer {
-    50% {
-        z-index: 1;
-    }
-    100% {
-        z-index: 1;
-    }
+.post__headerText h3 {
+  font-size: 15px;
+  margin-bottom: 5px;
 }
 
-@keyframes hideLayer {
-    0% {
-        z-index: 1;
-    }
-    49.999% {
-        z-index: 1;
-    }
+.post__headerDescription {
+  margin-bottom: 10px;
+  font-size: 15px;
 }
 
-.switcher {
-    position: relative;
-    cursor: pointer;
-    display: block;
-    margin-right: auto;
-    margin-left: auto;
-    padding: 0;
-    text-transform: uppercase;
-    font-family: inherit;
-    font-size: 16px;
-    letter-spacing: .5px;
-    color: #999;
-    background-color: transparent;
-    border: none;
-    outline: none;
-    transform: translateX(0);
-    transition: all .3s ease-out;
+.post__body {
+  flex: 1;
+  padding: 10px;
 }
 
-.form-wrapper.is-active .switcher-login {
-    color: #fff;
-    transform: translateX(90px);
+.post__avatar {
+  padding: 20px;
 }
 
-.form-wrapper.is-active .switcher-signup {
-    color: #fff;
-    transform: translateX(-90px);
+/* widgets */
+.widgets {
+  flex: 0.3;
 }
 
-.underline {
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    overflow: hidden;
-    pointer-events: none;
-    width: 100%;
-    height: 2px;
+.widgets__input {
+  display: flex;
+  align-items: center;
+  background-color: var(--twitter-background);
+  padding: 10px;
+  border-radius: 20px;
+  margin-top: 10px;
+  margin-left: 20px;
 }
 
-.underline::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: inherit;
-    display: block;
-    width: inherit;
-    height: inherit;
-    background-color: currentColor;
-    transition: transform .2s ease-out;
+.widgets__input input {
+  border: none;
+  background-color: var(--twitter-background);
 }
 
-.switcher-login .underline::before {
-    transform: translateX(101%);
+.widgets__searchIcon {
+  color: gray;
 }
 
-.switcher-signup .underline::before {
-    transform: translateX(-101%);
-}
-
-.form-wrapper.is-active .underline::before {
-    transform: translateX(0);
-}
-
-.form {
-    overflow: hidden;
-    min-width: 260px;
-    margin-top: 50px;
-    padding: 30px 25px;
-  border-radius: 5px;
-    transform-origin: top;
-}
-
-.form-login {
-    animation: hideLogin .3s ease-out forwards;
-}
-
-.form-wrapper.is-active .form-login {
-    animation: showLogin .3s ease-in forwards;
-}
-
-@keyframes showLogin {
-    0% {
-        background: #d7e7f1;
-        transform: translate(40%, 10px);
-    }
-    50% {
-        transform: translate(0, 0);
-    }
-    100% {
-        background-color: #fff;
-        transform: translate(35%, -20px);
-    }
-}
-
-@keyframes hideLogin {
-    0% {
-        background-color: #fff;
-        transform: translate(35%, -20px);
-    }
-    50% {
-        transform: translate(0, 0);
-    }
-    100% {
-        background: #d7e7f1;
-        transform: translate(40%, 10px);
-    }
-}
-
-.form-signup {
-    animation: hideSignup .3s ease-out forwards;
-}
-
-.form-wrapper.is-active .form-signup {
-    animation: showSignup .3s ease-in forwards;
-}
-
-@keyframes showSignup {
-    0% {
-        background: #d7e7f1;
-        transform: translate(-40%, 10px) scaleY(.8);
-    }
-    50% {
-        transform: translate(0, 0) scaleY(.8);
-    }
-    100% {
-        background-color: #fff;
-        transform: translate(-35%, -20px) scaleY(1);
-    }
-}
-
-@keyframes hideSignup {
-    0% {
-        background-color: #fff;
-        transform: translate(-35%, -20px) scaleY(1);
-    }
-    50% {
-        transform: translate(0, 0) scaleY(.8);
-    }
-    100% {
-        background: #d7e7f1;
-        transform: translate(-40%, 10px) scaleY(.8);
-    }
-}
-
-.form fieldset {
-    position: relative;
-    opacity: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    transition: all .3s ease-out;
-}
-
-.form-login fieldset {
-    transform: translateX(-50%);
-}
-
-.form-signup fieldset {
-    transform: translateX(50%);
-}
-
-.form-wrapper.is-active fieldset {
-    opacity: 1;
-    transform: translateX(0);
-    transition: opacity .4s ease-in, transform .35s ease-in;
-}
-
-.form legend {
-    position: absolute;
-    overflow: hidden;
-    width: 1px;
-    height: 1px;
-    clip: rect(0 0 0 0);
-}
-
-.input-block {
-    margin-bottom: 20px;
-}
-
-.input-block label {
-    font-size: 14px;
-  color: #a1b4b4;
-}
-
-.input-block input {
-    display: block;
-    width: 100%;
-    margin-top: 8px;
-    padding-right: 15px;
-    padding-left: 15px;
-    font-size: 16px;
-    line-height: 40px;
-    color: #3b4465;
-  background: #eef9fe;
-  border: 1px solid #cddbef;
-  border-radius: 2px;
-}
-
-.form [type='submit'] {
-    opacity: 0;
-    display: block;
-    min-width: 120px;
-    margin: 30px auto 10px;
-    font-size: 18px;
-    line-height: 40px;
-    border-radius: 25px;
-    border: none;
-    transition: all .3s ease-out;
-}
-
-.form-wrapper.is-active .form [type='submit'] {
-    opacity: 1;
-    transform: translateX(0);
-    transition: all .4s ease-in;
-}
-
-.btn-login {
-    color: #fbfdff;
-    background: #a7e245;
-    transform: translateX(-30%);
-}
-
-.btn-signup {
-    color: #a7e245;
-    background: #fbfdff;
-    box-shadow: inset 0 0 0 2px #a7e245;
-    transform: translateX(30%);
-}
