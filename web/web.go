@@ -1,11 +1,13 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"main/client"
+	"fmt"
 	"net/http"
 	"net/url"
-	"fmt"
+
+	"main/client"
+
+	"github.com/gin-gonic/gin"
 )
 
 var USERNAME = ""
@@ -16,14 +18,14 @@ func LoginAuth(c *gin.Context) {
 	var username, _ = c.GetPostForm("username")
 	var password, _ = c.GetPostForm("password")
 
-	r := client.Login(map[string]string{"username":username, "password":password})
+	r := client.Login(map[string]string{"username": username, "password": password})
 
 	if r["status"] == "Success" {
 		USERNAME = r["username"]
 		PROFILENAME = r["profilename"]
 		PROFILEIMG = r["profileimg"]
-		location := url.URL{Path: "/home",}
-    	c.Redirect(http.StatusFound, location.RequestURI())
+		location := url.URL{Path: "/home"}
+		c.Redirect(http.StatusFound, location.RequestURI())
 		return
 	} else {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
@@ -39,7 +41,7 @@ func SignUp(c *gin.Context) {
 	var profilename, _ = c.GetPostForm("profilename")
 	var profileimg, _ = c.GetPostForm("profileimg")
 
-	r := client.SignUp(map[string]string{"username":username, "password":password, "profilename":profilename, "profileimg": profileimg})
+	r := client.SignUp(map[string]string{"username": username, "password": password, "profilename": profilename, "profileimg": profileimg})
 
 	if r["status"] == "Success" {
 		USERNAME = r["username"]
@@ -59,18 +61,18 @@ func SignUp(c *gin.Context) {
 
 func LogOut(c *gin.Context) {
 	fmt.Println(USERNAME, PROFILENAME, PROFILEIMG)
-	location := url.URL{Path: "/login",}
-    c.Redirect(http.StatusFound, location.RequestURI())
+	location := url.URL{Path: "/login"}
+	c.Redirect(http.StatusFound, location.RequestURI())
 }
 
 func NavHome(c *gin.Context) {
-	location := url.URL{Path: "/home",}
-    c.Redirect(http.StatusFound, location.RequestURI())
+	location := url.URL{Path: "/home"}
+	c.Redirect(http.StatusFound, location.RequestURI())
 }
 
 func NavProfile(c *gin.Context) {
-	location := url.URL{Path: "/profile",}
-    c.Redirect(http.StatusFound, location.RequestURI())
+	location := url.URL{Path: "/profile"}
+	c.Redirect(http.StatusFound, location.RequestURI())
 
 }
 
