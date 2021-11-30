@@ -12,7 +12,9 @@ service UserService {
 
     rpc GetUserInfo (CommRequest) returns (LoginResponse) {}
 
-    rpc Post (PostRequest) returns (CommResponse) {}
+    rpc CreatePost (PostRequest) returns (CommResponse) {}
+
+    rpc GetPosts (CommRequest) returns (PostResponse) {}
 
     rpc Follow (FollowRequest) returns (CommResponse) {}
 
@@ -66,4 +68,17 @@ message PostRequest {
     string text = 4;
     string img = 5;
     string time = 6;
+}
+
+message PostResponse {
+    message post {
+        int32 id = 1;
+        string username = 2;
+        string profilename = 3;
+        string profileimg = 4;
+        string text = 5;
+        string img = 6;
+        string time = 7;
+    }
+    repeated post posts = 1;
 }

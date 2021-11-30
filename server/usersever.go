@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net"
+	"fmt"
 	"main/server/auth"
 	"main/server/db"
 	"google.golang.org/grpc"
@@ -36,6 +37,30 @@ func (s *UserServer) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Comm
 		return &pb.CommResponse{Status: "Fail", Msg: err}, nil
 	}
 	
+}
+
+func (s *UserServer) CreatePost(ctx context.Context, in *pb.PostRequest) (*pb.CommResponse, error) {
+	if err := db.CreatePost(in.Username, in.Profilename, in.Profileimg, in.Text, in.Img, in.Time); err == "" {
+		return &pb.CommResponse{Status: "Success", Msg: err}, nil
+	} else {
+		return &pb.CommResponse{Status: "Fail", Msg: err}, nil
+	}
+	
+}
+
+func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.PostResponse, error) {
+	log.Printf("Received: %v", in.Username)
+	rows, err := db.QueryPost(in.Username)
+	var posts []*pb.PostResponsePost
+	for rows.Next() {
+		post := new(pb.PostResponsePost)
+		err := rows.Scan(&post.Id, &post.Username, &post.Profilename, &post.Profileimg, &post.Text, &post.Img, &post.Time)
+		if err != nil {
+	        fmt.Println("Error while query posts: %v", err)
+	    }
+	    posts = append(posts, post)
+	}
+	return &pb.PostResponse{Posts: posts}, err
 }
 
 func main() {

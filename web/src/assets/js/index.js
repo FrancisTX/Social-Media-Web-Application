@@ -18,17 +18,18 @@ function handleMessageEvent() {
   text.value = "";
 }
 
-function getMessage(username, userimg, usertag, text, img) {
+
+function getMessage(profilename, profileimg, username, text, img) {
   const d = new Date()
   var msg = `
   <div class="post">
     <div class="post__avatar">
-      <img src="${userimg}" alt=""/>
+      <img src="${profileimg}" alt=""/>
     </div>
     <div class="post__body">
       <div class="post__header">
         <div class="post__headerText">
-          <h3>${username} <span class="post__headerSpecial"> <span class="material-icons post__badge"> verified </span>${usertag}</span></h3>
+          <h3>${profilename} <span class="post__headerSpecial"> <span class="material-icons post__badge"> verified </span>${username}</span></h3>
         </div>
         <div class="post__headerDescription">
           <span style="white-space: pre-line">${text}</span>

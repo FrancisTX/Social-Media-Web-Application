@@ -44,75 +44,39 @@
 
       <!-- tweetbox starts -->
       <div class="tweetBox">
-        <form>
+        <form METHOD="POST" ACTION="/post">
           <div class="tweetbox__input">
-            <img src="../assets/img/iu2.jpeg" alt=""/>
-            <textarea type="text" cols="40" rows="5" placeholder="What's happening?" id="msg"></textarea>
+            <img src={{.curProfileimg}} alt=""/>
+            <textarea type="text" cols="40" rows="5" placeholder="What's happening?" name="content"></textarea>
           </div>
-          <button type="button" class="tweetBox__tweetButton" id="send">Send</button>
+          <button type="submit" class="tweetBox__tweetButton" id="send">Send</button>
         </form>
       </div>
       <!-- tweetbox ends -->
 
       <!-- post starts -->
       <div class="posts">
+        {{ range $post := .posts }}
         <div class="post">
           <div class="post__avatar">
-            <img src="../assets/img/iu2.jpeg" alt=""/>
+            <img src={{ .Profileimg }} alt=""/>
           </div>
 
           <div class="post__body">
             <div class="post__header">
               <div class="post__headerText">
-                <h3>아이유(IU) 공식 트위터 <span class="post__headerSpecial"><span class="material-icons post__badge"> verified </span>@_IUofficial</span></h3>
+                <h3>{{ .Profilename }} <span class="post__headerSpecial"><span class="material-icons post__badge"> verified </span>{{ .Username }}</span></h3>
               </div>
               <div class="post__headerDescription">
-                <span style="white-space: pre-line">IU Digital Single
-[strawberry moon] 발매 안내
-
-MelOn 🎵 https://melon.com/album/detail.htm?albumId=10743453
-
-#아이유 #IU
-#strawberry_moon
-#자정에_뜨는_아이유의_딸기달
-#strawberrymoonWithIU</span>
+                <span style="white-space: pre-line">{{ .Text }}</span>
               </div>
             </div>
-            <img src="https://pbs.twimg.com/media/FA3QxnRUcAAuoRY.jpg" alt=""/>
+            {{ if .Img }}
+            <img src={{ .Img }} alt=""/>
+            {{ end }}
           </div>
         </div>
-        <!-- post ends -->
-
-        <!-- post starts -->
-        <div class="post">
-          <div class="post__avatar">
-            <img
-              src="../assets/img/iu2.jpeg"
-              alt=""
-            />
-          </div>
-
-          <div class="post__body">
-            <div class="post__header">
-              <div class="post__headerText">
-                <h3>아이유(IU) 공식 트위터 <span class="post__headerSpecial"><span class="material-icons post__badge"> verified </span>@_IUofficial</span></h3>
-              </div>
-              <div class="post__headerDescription">
-                <span style="white-space: pre-line">오래 기다리셨죠?Rolling on the floor laughing
-유튜브 700만 구독자 달성 축하Party popper기념
-모두가 기대하던 라이브클립Microphone
-맛있는 꿈을 다 같이 그려봐요Woman cook
-행복한Purple heart 꿈빛 파티시엘
-
-Movie camera https://youtu.be/bgQIzPnPI88
-
-#아이유 #IU 
-#꿈빛파티시엘</span>
-              </div>
-            </div>
-            <img src="https://pbs.twimg.com/media/FFG-COCaMAEGlYC?format=jpg&name=4096x4096" alt=""/>
-          </div>
-        </div>
+        {{ end }}
       </div>
       <!-- post ends -->
     </div>

@@ -64,10 +64,10 @@ func CreateUserTable() error {
 func CreatePostTable() error {
 	db := GetDB()
 	defer db.Close()
-	sql := `CREATE TABLE IF NOT EXISTS users(
+	sql := `CREATE TABLE IF NOT EXISTS posts(
 		id INT(4) PRIMARY KEY AUTO_INCREMENT,
-        username VARCHAR(64) NOT NULL UNIQUE,
-        profilename VARCHAR(64) NOT NULL UNIQUE,
+        username VARCHAR(64) NOT NULL,
+        profilename VARCHAR(64) NOT NULL,
         profileimg VARCHAR(128),
         text VARCHAR(1024) NOT NULL,
         img VARCHAR(256),
@@ -80,6 +80,28 @@ func CreatePostTable() error {
 	}
 	fmt.Println("Post Table created")
 	return nil
+}
+
+func CreatePost(username, profilename, profileimg, text, img, time string) string {
+	db := GetDB()
+	defer db.Close()
+	_, err := db.Exec("insert INTO posts(username,profilename,profileimg,text,img,time) values(?,?,?,?,?,?)",username, profilename, profileimg, text, img, time)
+	if err != nil{
+		fmt.Println(err)
+		return "Error while creating post"
+	}
+	fmt.Println("\nPost created")
+	return ""
+}
+
+func QueryPost(username string) (*sql.Rows, error) {
+	db := GetDB()
+	defer db.Close()
+	row, err := db.Query("select * from posts where username=?", username)
+	if (err != nil) {
+		fmt.Println(err)
+	}
+	return row, nil
 }
 
 func InsertUser(username, password, profilename, profileimg string) string{
@@ -108,8 +130,4 @@ func QueryUser(username string) (*User, error) {
 	}
 	fmt.Println("\nUser found: ", *user)
 	return user, nil
-}
-
-func main() {
-	QueryUser("test")
 }
