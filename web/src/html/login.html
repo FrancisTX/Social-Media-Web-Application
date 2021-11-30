@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
 {{ if .success }}
     <div class="alert alert-success" role="alert">
         {{ .success }}
@@ -24,10 +25,9 @@
       </button>
       <form class="form form-login" METHOD="POST" ACTION="/login">
         <fieldset>
-          <legend>Please, enter your email and password for login.</legend>
           <div class="input-block">
-            <label for="login-email">Username</label>
-            <input id="login-email" type="text" name="username" required>
+            <label for="login-username">Username</label>
+            <input id="login-username" type="text" name="username" required>
           </div>
           <div class="input-block">
             <label for="login-password">Password</label>
@@ -43,26 +43,25 @@
         Sign Up
         <span class="underline"></span>
       </button>
-      <form class="form form-signup">
+      <form class="form form-signup" METHOD="POST" ACTION="/signup">
         <fieldset>
-          <legend>Please, enter your email, password and password confirmation for sign up.</legend>
-            <div class="profile-pic-div">
-              <img src="../assets/img/image.png" id="photo">
-              <input type="file" id="file">
-              <label for="file" id="uploadBtn">Choose Photo</label>
-            </div>
+          <div class="profile-pic-div">
+            <img src="../assets/img/image.png" id="photo">
+            <input type="file" id="file">
+            <label for="file" id="uploadBtn">Choose Photo</label>
+          </div>
           <p>Upload your profile picture!</p>
           <div class="input-block">
-            <label for="signup-email">Profile Name</label>
-            <input id="signup-email" type="text" required>
+            <label for="signup-profilename">Profile Name</label>
+            <input id="signup-profilename" type="text" name="profilename" required>
           </div>
           <div class="input-block">
-            <label for="signup-email">Username</label>
-            <input id="signup-email" type="text" required>
+            <label for="signup-username">Username</label>
+            <input id="signup-username" type="text" name="username" required>
           </div>
           <div class="input-block">
             <label for="signup-password">Password</label>
-            <input id="signup-password" type="password" required>
+            <input id="signup-password" type="password" name="password" required>
           </div>
           <div class="input-block">
             <label for="signup-password-confirm">Confirm password</label>
