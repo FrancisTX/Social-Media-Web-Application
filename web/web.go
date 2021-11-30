@@ -4,10 +4,15 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+<<<<<<< HEAD
 
 	"main/client"
 
 	"github.com/gin-gonic/gin"
+=======
+	"time"
+	"fmt"
+>>>>>>> 95eadfe4f3543d74eafd524d5fb5b0005c7c9e94
 )
 
 var USERNAME = ""
@@ -65,6 +70,15 @@ func LogOut(c *gin.Context) {
 	c.Redirect(http.StatusFound, location.RequestURI())
 }
 
+func CreatePost(c *gin.Context) {
+	var text = c.PostForm("content")
+	client.CreatePost(map[string]string{"username":USERNAME, "profilename":PROFILENAME, "profileimg": PROFILEIMG, "text": text, "img": "", "time": time.Now().String()})
+	posts, err := client.GetPosts(map[string]string{"username":USERNAME})
+	if err == nil {
+		c.HTML(http.StatusOK, "index.html", gin.H{"posts": posts, "curProfileimg": PROFILEIMG,})
+	}
+}
+
 func NavHome(c *gin.Context) {
 	location := url.URL{Path: "/home"}
 	c.Redirect(http.StatusFound, location.RequestURI())
@@ -81,7 +95,10 @@ func LoginPage(c *gin.Context) {
 }
 
 func MainPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", nil)
+	posts, err := client.GetPosts(map[string]string{"username":USERNAME})
+	if err == nil {
+		c.HTML(http.StatusOK, "index.html", gin.H{"posts": posts, "curProfileimg": PROFILEIMG,})
+	}
 }
 
 func ProfilePage(c *gin.Context) {
@@ -98,6 +115,7 @@ func main() {
 	server.POST("/login", LoginAuth)
 	server.POST("/signup", SignUp)
 	server.POST("/logout", LogOut)
+	server.POST("/post", CreatePost)
 	server.POST("/navprofile", NavProfile)
 	server.POST("/navhome", NavHome)
 	server.Run(":8888")

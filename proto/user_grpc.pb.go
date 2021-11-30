@@ -22,7 +22,8 @@ type UserServiceClient interface {
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*CommResponse, error)
 	EditProfile(ctx context.Context, in *EditRequest, opts ...grpc.CallOption) (*CommResponse, error)
 	GetUserInfo(ctx context.Context, in *CommRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	Post(ctx context.Context, in *PostRequest, opts ...grpc.CallOption) (*CommResponse, error)
+	CreatePost(ctx context.Context, in *PostRequest, opts ...grpc.CallOption) (*CommResponse, error)
+	GetPosts(ctx context.Context, in *CommRequest, opts ...grpc.CallOption) (*PostResponse, error)
 	Follow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*CommResponse, error)
 	Unfollow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*CommResponse, error)
 }
@@ -71,9 +72,18 @@ func (c *userServiceClient) GetUserInfo(ctx context.Context, in *CommRequest, op
 	return out, nil
 }
 
-func (c *userServiceClient) Post(ctx context.Context, in *PostRequest, opts ...grpc.CallOption) (*CommResponse, error) {
+func (c *userServiceClient) CreatePost(ctx context.Context, in *PostRequest, opts ...grpc.CallOption) (*CommResponse, error) {
 	out := new(CommResponse)
-	err := c.cc.Invoke(ctx, "/proto.UserService/Post", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.UserService/CreatePost", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetPosts(ctx context.Context, in *CommRequest, opts ...grpc.CallOption) (*PostResponse, error) {
+	out := new(PostResponse)
+	err := c.cc.Invoke(ctx, "/proto.UserService/GetPosts", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +116,8 @@ type UserServiceServer interface {
 	SignUp(context.Context, *SignUpRequest) (*CommResponse, error)
 	EditProfile(context.Context, *EditRequest) (*CommResponse, error)
 	GetUserInfo(context.Context, *CommRequest) (*LoginResponse, error)
-	Post(context.Context, *PostRequest) (*CommResponse, error)
+	CreatePost(context.Context, *PostRequest) (*CommResponse, error)
+	GetPosts(context.Context, *CommRequest) (*PostResponse, error)
 	Follow(context.Context, *FollowRequest) (*CommResponse, error)
 	Unfollow(context.Context, *FollowRequest) (*CommResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
@@ -128,8 +139,11 @@ func (UnimplementedUserServiceServer) EditProfile(context.Context, *EditRequest)
 func (UnimplementedUserServiceServer) GetUserInfo(context.Context, *CommRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
 }
-func (UnimplementedUserServiceServer) Post(context.Context, *PostRequest) (*CommResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Post not implemented")
+func (UnimplementedUserServiceServer) CreatePost(context.Context, *PostRequest) (*CommResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
+}
+func (UnimplementedUserServiceServer) GetPosts(context.Context, *CommRequest) (*PostResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPosts not implemented")
 }
 func (UnimplementedUserServiceServer) Follow(context.Context, *FollowRequest) (*CommResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Follow not implemented")
@@ -222,20 +236,38 @@ func _UserService_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_Post_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserService_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PostRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).Post(ctx, in)
+		return srv.(UserServiceServer).CreatePost(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.UserService/Post",
+		FullMethod: "/proto.UserService/CreatePost",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).Post(ctx, req.(*PostRequest))
+		return srv.(UserServiceServer).CreatePost(ctx, req.(*PostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetPosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetPosts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.UserService/GetPosts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetPosts(ctx, req.(*CommRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -300,8 +332,12 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_GetUserInfo_Handler,
 		},
 		{
-			MethodName: "Post",
-			Handler:    _UserService_Post_Handler,
+			MethodName: "CreatePost",
+			Handler:    _UserService_CreatePost_Handler,
+		},
+		{
+			MethodName: "GetPosts",
+			Handler:    _UserService_GetPosts_Handler,
 		},
 		{
 			MethodName: "Follow",
