@@ -70,6 +70,8 @@ func main() {
 	}
 	s := grpc.NewServer()
 	pb.RegisterUserServiceServer(s, &UserServer{})
+	db.CreateUserTable()
+	db.CreatePostTable()
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
