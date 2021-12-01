@@ -63,22 +63,19 @@ message FollowRequest {
 
 message PostRequest {
     string username = 1;
-    string profilename = 2;
-    string profileimg = 3;
-    string text = 4;
-    string img = 5;
-    string time = 6;
+    string text = 2;
+    string img = 3;
+    string time = 4;
 }
 
 message PostResponse {
     message post {
-        int32 id = 1;
-        string username = 2;
-        string profilename = 3;
-        string profileimg = 4;
-        string text = 5;
-        string img = 6;
-        string time = 7;
+        string username = 1;
+        string profilename = 2;
+        string profileimg = 3;
+        string text = 4;
+        string img = 5;
+        string time = 6;
     }
     repeated post posts = 1;
 }

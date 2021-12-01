@@ -66,7 +66,7 @@ func LogOut(c *gin.Context) {
 
 func CreatePost(c *gin.Context) {
 	var text = c.PostForm("content")
-	client.CreatePost(map[string]string{"username":USERNAME, "profilename":PROFILENAME, "profileimg": PROFILEIMG, "text": text, "img": "", "time": time.Now().String()})
+	client.CreatePost(map[string]string{"username":USERNAME, "text": text, "img": "", "time": time.Now().String()})
 	posts, err := client.GetPosts(map[string]string{"username":USERNAME})
 	if err == nil {
 		c.HTML(http.StatusOK, "index.html", gin.H{"posts": posts, "curProfileimg": PROFILEIMG,})

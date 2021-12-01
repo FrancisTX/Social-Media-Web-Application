@@ -40,7 +40,7 @@ func (s *UserServer) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Comm
 }
 
 func (s *UserServer) CreatePost(ctx context.Context, in *pb.PostRequest) (*pb.CommResponse, error) {
-	if err := db.CreatePost(in.Username, in.Profilename, in.Profileimg, in.Text, in.Img, in.Time); err == "" {
+	if err := db.CreatePost(in.Username, in.Text, in.Img, in.Time); err == "" {
 		return &pb.CommResponse{Status: "Success", Msg: err}, nil
 	} else {
 		return &pb.CommResponse{Status: "Fail", Msg: err}, nil
@@ -54,7 +54,7 @@ func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.Post
 	var posts []*pb.PostResponsePost
 	for rows.Next() {
 		post := new(pb.PostResponsePost)
-		err := rows.Scan(&post.Id, &post.Username, &post.Profilename, &post.Profileimg, &post.Text, &post.Img, &post.Time)
+		err := rows.Scan(&post.Username, &post.Profilename, &post.Profileimg, &post.Text, &post.Img, &post.Time)
 		if err != nil {
 	        fmt.Println("Error while query posts: %v", err)
 	    }
