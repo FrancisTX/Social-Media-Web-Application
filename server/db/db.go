@@ -9,7 +9,7 @@ import (
 
 const (
 	USERNAME = "root"
-	PASSWORD = "wtx20150914"
+	PASSWORD = ""
 	NETWORK  = "tcp"
 	SERVER   = "127.0.0.1"
 	PORT     = 3306
