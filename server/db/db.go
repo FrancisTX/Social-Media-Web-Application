@@ -67,8 +67,6 @@ func CreatePostTable() error {
 	sql := `CREATE TABLE IF NOT EXISTS posts(
 		id INT(4) PRIMARY KEY AUTO_INCREMENT,
         username VARCHAR(64) NOT NULL,
-        profilename VARCHAR(64) NOT NULL,
-        profileimg VARCHAR(128),
         text VARCHAR(1024) NOT NULL,
         img VARCHAR(256),
         time VARCHAR(64) NOT NULL
@@ -81,10 +79,10 @@ func CreatePostTable() error {
 	return nil
 }
 
-func CreatePost(username, profilename, profileimg, text, img, time string) string {
+func CreatePost(username, text, img, time string) string {
 	db := GetDB()
 	defer db.Close()
-	_, err := db.Exec("insert INTO posts(username,profilename,profileimg,text,img,time) values(?,?,?,?,?,?)", username, profilename, profileimg, text, img, time)
+	_, err := db.Exec("insert INTO posts(username,text,img,time) values(?,?,?,?)", username, text, img, time)
 	if err != nil {
 		fmt.Println(err)
 		return "Error while creating post"
@@ -96,7 +94,7 @@ func CreatePost(username, profilename, profileimg, text, img, time string) strin
 func QueryPost(username string) (*sql.Rows, error) {
 	db := GetDB()
 	defer db.Close()
-	row, err := db.Query("select * from posts where username=?", username)
+	row, err := db.Query("select u.username, u.profilename, u.profileimg, p.text, p.img, p.time from posts p, users u where u.username = ? and p.username = u.username;", username)
 	if err != nil {
 		fmt.Println(err)
 	}

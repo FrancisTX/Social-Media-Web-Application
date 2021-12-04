@@ -66,7 +66,7 @@ func CreatePost(args map[string]string) map[string]string {
 
 	// CreatePost
 
-	r, err := c.CreatePost(ctx, &pb.PostRequest{Username: args["username"], Profilename: args["profilename"], Profileimg: args["profileimg"], Text: args["text"], Img: args["img"], Time: args["time"]})
+	r, err := c.CreatePost(ctx, &pb.PostRequest{Username: args["username"], Text: args["text"], Img: args["img"], Time: args["time"]})
 	return map[string]string{"status": r.Status, "msg": r.Msg}
 }
 
