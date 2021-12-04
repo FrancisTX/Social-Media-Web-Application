@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<body>
+    <head>
+        <link rel="stylesheet" href="../assets/css/index.css" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+          integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+          crossorigin="anonymous"
+        />
+    </head>
+<!-- sidebar starts -->
+<div class="sidebar">
+    <div class="sidebarOption active">
+        <span class="material-icons"> home </span>
+        <h2>Home</h2>
+    </div>
+  
+    <form class="sidebarOption" METHOD="POST" ACTION="/navprofile">
+        <span class="material-icons"> perm_identity </span>
+        <button type="submit">Profile</button>
+    </form>
+  
+    <form class="sidebarOption" METHOD="POST" ACTION="/logout">
+        <span class="material-icons"> logout </span>
+        <button type="submit">Log out</button>
+    </form>
+</div>
+<!-- sidebar ends -->
+<span class="userInfo">
+    <img src="../assets/img/image.png" style="width: 100px;height: 100px;">
+    
+    <span style="display: block;">
+    <span style="display: block;">{{.Error}}</span>
+    <span style="display: block;">{{.Profilename}}</span>
+    <span style="display: block;">@{{.Username}}</span>
+    <form METHOD="POST" ACTION="/follow">
+        <button type="submit">Follow</button>
+    </form>
+    <form METHOD="POST" ACTION="/unfollow">
+        <button type="submit">Unfollow</button>
+    </form>
+    </span>
+  </span>
+</body>
+</html>

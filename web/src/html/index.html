@@ -65,7 +65,7 @@
           <div class="post__body">
             <div class="post__header">
               <div class="post__headerText">
-                <h3>{{ .Profilename }} <span class="post__headerSpecial"><span class="material-icons post__badge"> verified </span>{{ .Username }}</span></h3>
+                <h3>{{ .Profilename }}<span class="post__headerSpecial"><span class="material-icons post__badge"> verified </span>{{ .Username }} {{ .Time}}</span></h3>
               </div>
               <div class="post__headerDescription">
                 <span style="white-space: pre-line">{{ .Text }}</span>
@@ -84,10 +84,13 @@
 
     <!-- widgets starts -->
     <div class="widgets">
-      <div class="widgets__input">
+      <form METHOD="GET" ACTION="/search">
+      <div>
         <span class="material-icons widgets__searchIcon"> search </span>
-        <input type="text" placeholder="Search Users" />
+        <input type="text" name="usrname" placeholder="Search Users" />
       </div>
+        <button type="submit" > Search </button>
+      </form>
     </div>
     <!-- widgets ends -->
   </body>

@@ -3,15 +3,16 @@ package db
 import (
 	"database/sql"
 	"fmt"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
 const (
 	USERNAME = "root"
-	PASSWORD = ""
-	NETWORK = "tcp"
-	SERVER = "127.0.0.1"
-	PORT = 3306
+	PASSWORD = "wtx20150914"
+	NETWORK  = "tcp"
+	SERVER   = "127.0.0.1"
+	PORT     = 3306
 	DATABASE = "twitter"
 )
 
@@ -34,7 +35,7 @@ type Post struct {
 }
 
 func GetDB() *sql.DB {
-	conn := fmt.Sprintf("%s:%s@%s(%s:%d)/%s",USERNAME, PASSWORD, NETWORK, SERVER, PORT, DATABASE)
+	conn := fmt.Sprintf("%s:%s@%s(%s:%d)/%s", USERNAME, PASSWORD, NETWORK, SERVER, PORT, DATABASE)
 	db, err := sql.Open("mysql", conn)
 	if err != nil {
 		fmt.Println("Error while launching MySQL: ", err)
@@ -54,7 +55,6 @@ func CreateUserTable() error {
 	); `
 
 	if _, err := db.Exec(sql); err != nil {
-		fmt.Println("Error while creating table: ", err)
 		return err
 	}
 	fmt.Println("User Table created")
@@ -75,7 +75,6 @@ func CreatePostTable() error {
 	); `
 
 	if _, err := db.Exec(sql); err != nil {
-		fmt.Println("Error while creating table: ", err)
 		return err
 	}
 	fmt.Println("Post Table created")
@@ -85,8 +84,8 @@ func CreatePostTable() error {
 func CreatePost(username, profilename, profileimg, text, img, time string) string {
 	db := GetDB()
 	defer db.Close()
-	_, err := db.Exec("insert INTO posts(username,profilename,profileimg,text,img,time) values(?,?,?,?,?,?)",username, profilename, profileimg, text, img, time)
-	if err != nil{
+	_, err := db.Exec("insert INTO posts(username,profilename,profileimg,text,img,time) values(?,?,?,?,?,?)", username, profilename, profileimg, text, img, time)
+	if err != nil {
 		fmt.Println(err)
 		return "Error while creating post"
 	}
@@ -98,20 +97,20 @@ func QueryPost(username string) (*sql.Rows, error) {
 	db := GetDB()
 	defer db.Close()
 	row, err := db.Query("select * from posts where username=?", username)
-	if (err != nil) {
+	if err != nil {
 		fmt.Println(err)
 	}
 	return row, nil
 }
 
-func InsertUser(username, password, profilename, profileimg string) string{
+func InsertUser(username, password, profilename, profileimg string) string {
 	db := GetDB()
 	defer db.Close()
 	if _, err := QueryUser(username); err == nil {
 		return "User already exists"
 	} else {
-		_, err := db.Exec("insert INTO users(username,password,profilename,profileimg) values(?,?,?,?)",username, password, profilename, profileimg)
-		if err != nil{
+		_, err := db.Exec("insert INTO users(username,password,profilename,profileimg) values(?,?,?,?)", username, password, profilename, profileimg)
+		if err != nil {
 			return "Error while creating user"
 		}
 		fmt.Println("\nUser created: ", username)
@@ -130,4 +129,22 @@ func QueryUser(username string) (*User, error) {
 	}
 	fmt.Println("\nUser found: ", *user)
 	return user, nil
+}
+
+func CreateFollowerTable() error {
+	db := GetDB()
+	defer db.Close()
+	sql := `CREATE TABLE IF NOT EXISTS posts(
+		id INT(4) PRIMARY KEY AUTO_INCREMENT,
+        userName VARCHAR(64) NOT NULL,
+        followingUserName VARCHAR(64) NOT NULL,
+        profileImg VARCHAR(128),
+        time VARCHAR(64) NOT NULL
+	); `
+
+	if _, err := db.Exec(sql); err != nil {
+		return err
+	}
+	fmt.Println("Follower Table created")
+	return nil
 }

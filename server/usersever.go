@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
-	"log"
-	"net"
 	"fmt"
+	"log"
+	pb "main/proto"
 	"main/server/auth"
 	"main/server/db"
+	"net"
+
 	"google.golang.org/grpc"
-	pb "main/proto"
 )
 
 const (
@@ -26,7 +27,7 @@ func (s *UserServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginR
 	} else {
 		return &pb.LoginResponse{Status: "Fail", Msg: err}, nil
 	}
-	
+
 }
 
 func (s *UserServer) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.CommResponse, error) {
@@ -34,33 +35,47 @@ func (s *UserServer) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Comm
 	if err := db.InsertUser(in.Username, in.Password, in.Profilename, in.Profileimg); err == "" {
 		return &pb.CommResponse{Status: "Success", Msg: err}, nil
 	} else {
+		log.Printf("Fail to insert the user: %v", err)
 		return &pb.CommResponse{Status: "Fail", Msg: err}, nil
 	}
-	
+
 }
 
 func (s *UserServer) CreatePost(ctx context.Context, in *pb.PostRequest) (*pb.CommResponse, error) {
 	if err := db.CreatePost(in.Username, in.Profilename, in.Profileimg, in.Text, in.Img, in.Time); err == "" {
 		return &pb.CommResponse{Status: "Success", Msg: err}, nil
 	} else {
+		log.Printf("Fail to create the post: %v", err)
 		return &pb.CommResponse{Status: "Fail", Msg: err}, nil
 	}
-	
+
 }
 
 func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.PostResponse, error) {
-	log.Printf("Received: %v", in.Username)
+	log.Printf("GetPosts Received: %v", in.Username)
 	rows, err := db.QueryPost(in.Username)
 	var posts []*pb.PostResponsePost
 	for rows.Next() {
 		post := new(pb.PostResponsePost)
 		err := rows.Scan(&post.Id, &post.Username, &post.Profilename, &post.Profileimg, &post.Text, &post.Img, &post.Time)
 		if err != nil {
-	        fmt.Println("Error while query posts: %v", err)
-	    }
-	    posts = append(posts, post)
+			fmt.Println("Error while query posts: %v", err)
+		}
+		posts = append(posts, post)
 	}
 	return &pb.PostResponse{Posts: posts}, err
+}
+
+func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.LoginResponse, error) {
+	log.Printf("GetUserInfo Received: %v", in.Username)
+	var err error
+	user, err := db.QueryUser(in.Username)
+	if err != nil {
+		log.Fatalln("GetUserInfo QueryUser Fault: %v", err)
+		return nil, err
+	}
+	log.Println("GetUserInfo query user: %v", user)
+	return &pb.LoginResponse{Username: user.Username, Profilename: user.ProfileName, Profileimg: user.ProfileImg}, err
 }
 
 func main() {
@@ -70,6 +85,21 @@ func main() {
 	}
 	s := grpc.NewServer()
 	pb.RegisterUserServiceServer(s, &UserServer{})
+	err = db.CreateUserTable()
+	if err != nil {
+		fmt.Println("Error while creating User table: ", err)
+	}
+
+	err = db.CreatePostTable()
+	if err != nil {
+		fmt.Println("Error while creating Post table: ", err)
+	}
+
+	err = db.CreateFollowerTable()
+	if err != nil {
+		fmt.Println("Error while creating Follower table: ", err)
+	}
+
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

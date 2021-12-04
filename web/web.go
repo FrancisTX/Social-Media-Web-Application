@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -98,7 +99,24 @@ func MainPage(c *gin.Context) {
 }
 
 func ProfilePage(c *gin.Context) {
-	c.HTML(http.StatusOK, "profile.html", nil)
+	//log.Println("name: %s", USERNAME)
+	userInfo, err := client.GetUserInfo(USERNAME)
+	//log.Println("info: %v", userInfo)
+	if err == nil {
+		c.HTML(http.StatusOK, "profile.html", gin.H{"Profilename": userInfo.Profilename, "Username": userInfo.Username, "Profileimg": userInfo.Profileimg})
+	}
+}
+
+func UserSearch(c *gin.Context) {
+	log.Println("Start!")
+	usrname := c.Query("usrname")
+	log.Println(usrname)
+	userInfo, err := client.GetUserInfo(usrname)
+	if err != nil {
+		c.HTML(http.StatusUnauthorized, "search.html", gin.H{"Error": "User Not Found"})
+	} else {
+		c.HTML(http.StatusOK, "search.html", gin.H{"Profilename": userInfo.Profilename, "Username": userInfo.Username, "Profileimg": userInfo.Profileimg})
+	}
 }
 
 func main() {
@@ -114,5 +132,8 @@ func main() {
 	server.POST("/post", CreatePost)
 	server.POST("/navprofile", NavProfile)
 	server.POST("/navhome", NavHome)
+	server.GET("/search", UserSearch)
+	//server.POST("/follow", Follow)
+	//server.POST("/unfollow", Unfollow)
 	server.Run(":8888")
 }

@@ -20,7 +20,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   </head>
   <body>
-
     <!-- sidebar starts -->
     <div class="sidebar">
       <form class="sidebarOption" METHOD="POST" ACTION="/navhome">
@@ -41,25 +40,38 @@
     </div>
     <!-- sidebar ends -->
 
-    <!-- feed starts -->
-    <div class="feed">
-      <div class="card-container">
-  <h1>Edit Profile</h1>
-  <form>
-    <div class="profile-pic-div">
-      <img src="../assets/img/image.png" id="photo">
-      <input type="file" id="file">
-      <label for="file" id="uploadBtn">Choose Photo</label>
-    </div>
-    <p>Upload a new profile picture!</p>
-    <div class="input-block">
-      <input id="signup-email" placeholder="New Profile Name" type="text" required>
-    </div>
+
+    <!-- profile info (followers and following) starts -->
+  <div float: left;> 
+    <span class="userInfo">
+      <img src="../assets/img/image.png" style="height: 32%;width: 26%;">
+      
+      <span style="display: block;">
+      <span style="display: block;">{{.Profilename}}</span>
+      <span style="display: block;">@{{.Username}}</span>
+      <button>Followers</button> <button>Following</button>
+      </span>
+    </span>
+  
+    <!-- profile info ends-->
+
+    <span class="card-container">
+    <h1>Edit Profile</h1>
+    <form>
+      <div class="profile-pic-div">
+        <img src="../assets/img/image.png" id="photo">
+        <input type="file" id="file">
+        <label for="file" id="uploadBtn">Choose Photo</label>
+      </div>
+      <p>Upload a new profile picture!</p>
+      <div class="input-block">
+        <input id="signup-email" placeholder="New Profile Name" type="text" required>
+      </div>
     <button type="submit" class="btndone">DONE</button>
-  </form>
-</div>
+    </form>
+  </span>
       <!-- post ends -->
-    </div>
+  </div>
     <!-- feed ends -->
 
     <!-- widgets starts -->
