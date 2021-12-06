@@ -119,6 +119,7 @@ func UserSearch(c *gin.Context) {
 
 func Follow(c *gin.Context) {
 	usrname := c.PostForm("follow")
+	usrname = "test"
 	log.Println("name %s", usrname)
 	m, err := client.Follow(USERNAME, usrname)
 	if m.Status != "Success" {

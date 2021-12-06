@@ -11,7 +11,7 @@ import (
 
 const (
 	USERNAME = "root"
-	PASSWORD = "wtx20150914"
+	PASSWORD = ""
 	NETWORK  = "tcp"
 	SERVER   = "127.0.0.1"
 	PORT     = 3306
@@ -137,12 +137,10 @@ func CreateFollowerTable() error {
 	sql := `CREATE TABLE IF NOT EXISTS followers(
 		id INT(4) PRIMARY KEY AUTO_INCREMENT,
         userName VARCHAR(64) NOT NULL,
-        followingUserName VARCHAR(64) NOT NULL,
-        profileImg VARCHAR(128),
-        time VARCHAR(64) NOT NULL
+        followingUserName VARCHAR(64) NOT NULL
 	); `
 
-	if _, err := db.Exec(sql); err != nil {
+	if _, err := db.Exec(sql); err != nil { 
 		return err
 	}
 	fmt.Println("Follower Table created")
@@ -152,9 +150,11 @@ func CreateFollowerTable() error {
 func Follow(username1, username2 string) error {
 	db := GetDB()
 	defer db.Close()
-	row := db.QueryRow("SELECT * FROM followers(username, followusername) values(?, ?)", username1, username2)
-	if row == nil {
-		_, err := db.Exec("INSERT INTO followers(username, followusername) values(?, ?)", username1, username2)
+	var name1 string
+	var name2 string
+	row := db.QueryRow("SELECT * FROM followers(userName, followingUserName) values(?, ?)", username1, username2)
+	if err := row.Scan(&name1, &name2); err != nil {
+		_, err := db.Exec("INSERT INTO followers(userName, followingUserName) values(?, ?)", username1, username2)
 		if err != nil {
 			log.Println("error: %v", err)
 			return err
@@ -168,9 +168,9 @@ func Follow(username1, username2 string) error {
 func Unfollow(username1, username2 string) error {
 	db := GetDB()
 	defer db.Close()
-	row := db.QueryRow("SELECT * FROM followers(username, followusername) values(?, ?)", username1, username2)
+	row := db.QueryRow("SELECT * FROM followers(userName, followingUserName) values(?, ?)", username1, username2)
 	if row != nil {
-		_, err := db.Exec("DELETE FROM followers(username, followusername) values(?, ?)", username1, username2)
+		_, err := db.Exec("DELETE FROM followers(userName, followingUserName) values(?, ?)", username1, username2)
 		if err != nil {
 			log.Println("error: %v", err)
 			return err

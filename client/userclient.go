@@ -9,7 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 )
-
+ 
 const (
 	address = "localhost:5050"
 )
@@ -124,6 +124,8 @@ func Follow(username1, username2 string) (*pb.CommResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
+	//Follow
+	
 	r, err := c.Follow(ctx, &pb.FollowRequest{Username1: username1, Username2: username2})
 	if err != nil {
 		log.Println("Follow err: %v", err)
