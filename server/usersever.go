@@ -75,9 +75,27 @@ func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.L
 		return nil, err
 	}
 	log.Println("GetUserInfo query user: %v", user)
-	return &pb.LoginResponse{Username: user.Username, Profilename: user.ProfileName, Profileimg: user.ProfileImg}, err
+	return &pb.LoginResponse{Username: user.Username, Profilename: user.ProfileName, Profileimg: user.ProfileImg}, nil
 }
 
+func (s *UserServer) Follow(ctx context.Context, in *pb.FollowRequest) (*pb.CommResponse, error) {
+	log.Println("server end follow start")
+	err := db.Follow(in.Username1, in.Username2)
+	if err != nil {
+		log.Fatalln("Follow Fault: %v", err)
+		return &pb.CommResponse{Status: "Fail"}, err
+	}
+	return &pb.CommResponse{Status: "Success"}, nil
+}
+
+func (s *UserServer) Unfollow(ctx context.Context, in *pb.FollowRequest) (*pb.CommResponse, error) {
+	err := db.Unfollow(in.Username1, in.Username2)
+	if err != nil {
+		log.Fatalln("Unfollow Fault: %v", err)
+		return &pb.CommResponse{Status: "Fail"}, err
+	}
+	return &pb.CommResponse{Status: "Success"}, nil
+}
 func main() {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {

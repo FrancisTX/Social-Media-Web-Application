@@ -108,9 +108,7 @@ func ProfilePage(c *gin.Context) {
 }
 
 func UserSearch(c *gin.Context) {
-	log.Println("Start!")
 	usrname := c.Query("usrname")
-	log.Println(usrname)
 	userInfo, err := client.GetUserInfo(usrname)
 	if err != nil {
 		c.HTML(http.StatusUnauthorized, "search.html", gin.H{"Error": "User Not Found"})
@@ -119,6 +117,26 @@ func UserSearch(c *gin.Context) {
 	}
 }
 
+func Follow(c *gin.Context) {
+	usrname := c.PostForm("follow")
+	log.Println("name %s", usrname)
+	m, err := client.Follow(USERNAME, usrname)
+	if m.Status != "Success" {
+		log.Fatal("Follow failed: %v", err)
+	}
+	location := url.URL{Path: "/home"}
+	c.Redirect(http.StatusFound, location.RequestURI())
+}
+
+func Unfollow(c *gin.Context) {
+	usrname := c.PostForm("follow")
+	m, err := client.Unfollow(USERNAME, usrname)
+	if m.Status != "Success" {
+		log.Fatal("Unfollow failed: %v", err)
+	}
+	location := url.URL{Path: "/home"}
+	c.Redirect(http.StatusFound, location.RequestURI())
+}
 func main() {
 	server := gin.Default()
 	server.LoadHTMLGlob("web/src/html/*")
@@ -133,7 +151,9 @@ func main() {
 	server.POST("/navprofile", NavProfile)
 	server.POST("/navhome", NavHome)
 	server.GET("/search", UserSearch)
-	//server.POST("/follow", Follow)
-	//server.POST("/unfollow", Unfollow)
+	server.POST("/follow", Follow)
+	server.POST("/unfollow", Unfollow)
+	//server.GET("/follower", GetFollower)
+	//server.GET("/following", GetFollowing)
 	server.Run(":8888")
 }

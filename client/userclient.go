@@ -102,7 +102,58 @@ func GetUserInfo(usrname string) (*pb.LoginResponse, error) {
 	//Get User Info
 
 	r, err := c.GetUserInfo(ctx, &pb.CommRequest{Username: usrname})
-	if r == nil {
+	if err != nil {
+		log.Println("Search err: %v", err)
+		return nil, err
+	}
+	if r.Status == "Fail" {
+		log.Println("Search Fail in client")
+		return nil, err
+	}
+	return r, err
+}
+
+func Follow(username1, username2 string) (*pb.CommResponse, error) {
+	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	c := pb.NewUserServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	r, err := c.Follow(ctx, &pb.FollowRequest{Username1: username1, Username2: username2})
+	if err != nil {
+		log.Println("Follow err: %v", err)
+		return nil, err
+	}
+	if r.Status == "Fail" {
+		log.Println("Follow Fail in client")
+		return nil, err
+	}
+	return r, err
+}
+
+func Unfollow(username1, username2 string) (*pb.CommResponse, error) {
+	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	c := pb.NewUserServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	r, err := c.Unfollow(ctx, &pb.FollowRequest{Username1: username1, Username2: username2})
+	if err != nil {
+		log.Println("Unfollow err: %v", err)
+		return nil, err
+	}
+	if r.Status == "Fail" {
+		log.Println("Unfollow Fail in client")
 		return nil, err
 	}
 	return r, err

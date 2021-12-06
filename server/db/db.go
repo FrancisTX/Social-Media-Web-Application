@@ -2,14 +2,16 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 const (
 	USERNAME = "root"
-	PASSWORD = ""
+	PASSWORD = "wtx20150914"
 	NETWORK  = "tcp"
 	SERVER   = "127.0.0.1"
 	PORT     = 3306
@@ -120,7 +122,7 @@ func QueryUser(username string) (*User, error) {
 	db := GetDB()
 	defer db.Close()
 	user := new(User)
-	row := db.QueryRow("select * from users where username=?", username)
+	row := db.QueryRow("SELECT * FROM users WHERE username=?", username)
 	if err := row.Scan(&user.ID, &user.Username, &user.Password, &user.ProfileName, &user.ProfileImg); err != nil {
 		fmt.Printf("Error while mapping user: %v", err)
 		return user, err
@@ -132,7 +134,7 @@ func QueryUser(username string) (*User, error) {
 func CreateFollowerTable() error {
 	db := GetDB()
 	defer db.Close()
-	sql := `CREATE TABLE IF NOT EXISTS posts(
+	sql := `CREATE TABLE IF NOT EXISTS followers(
 		id INT(4) PRIMARY KEY AUTO_INCREMENT,
         userName VARCHAR(64) NOT NULL,
         followingUserName VARCHAR(64) NOT NULL,
@@ -145,4 +147,36 @@ func CreateFollowerTable() error {
 	}
 	fmt.Println("Follower Table created")
 	return nil
+}
+
+func Follow(username1, username2 string) error {
+	db := GetDB()
+	defer db.Close()
+	row := db.QueryRow("SELECT * FROM followers(username, followusername) values(?, ?)", username1, username2)
+	if row == nil {
+		_, err := db.Exec("INSERT INTO followers(username, followusername) values(?, ?)", username1, username2)
+		if err != nil {
+			log.Println("error: %v", err)
+			return err
+		}
+		return nil
+	} else {
+		return errors.New("Have already followed")
+	}
+}
+
+func Unfollow(username1, username2 string) error {
+	db := GetDB()
+	defer db.Close()
+	row := db.QueryRow("SELECT * FROM followers(username, followusername) values(?, ?)", username1, username2)
+	if row != nil {
+		_, err := db.Exec("DELETE FROM followers(username, followusername) values(?, ?)", username1, username2)
+		if err != nil {
+			log.Println("error: %v", err)
+			return err
+		}
+		return nil
+	} else {
+		return errors.New("Not follow yet")
+	}
 }

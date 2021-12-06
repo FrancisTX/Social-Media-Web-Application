@@ -34,12 +34,13 @@
     <span style="display: block;">
     <span style="display: block;">{{.Error}}</span>
     <span style="display: block;">{{.Profilename}}</span>
-    <span style="display: block;">@{{.Username}}</span>
-    <form METHOD="POST" ACTION="/follow">
-        <button type="submit">Follow</button>
+    <span name='follow' style="display: block;">@{{.Username}}</span>
+ 
+    <form METHOD="POST" action="/follow">
+        <button type="submit" name="followbt" value={{.Username}}>Follow</button>
     </form>
-    <form METHOD="POST" ACTION="/unfollow">
-        <button type="submit">Unfollow</button>
+    <form METHOD="POST" action="/unfollow">
+        <button type="submit" name="unfollowbt">UnFollow</button>
     </form>
     </span>
   </span>
