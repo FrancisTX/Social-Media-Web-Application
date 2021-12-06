@@ -65,7 +65,7 @@ func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.Post
 	}
 	return &pb.PostResponse{Posts: posts}, err
 }
-
+ 
 func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.LoginResponse, error) {
 	log.Printf("GetUserInfo Received: %v", in.Username)
 	var err error
@@ -79,7 +79,7 @@ func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.L
 }
 
 func (s *UserServer) Follow(ctx context.Context, in *pb.FollowRequest) (*pb.CommResponse, error) {
-	log.Println("server end follow start")
+	log.Println("server end follow start", in.Username1, in.Username2)
 	err := db.Follow(in.Username1, in.Username2)
 	if err != nil {
 		log.Fatalln("Follow Fault: %v", err)
@@ -96,6 +96,7 @@ func (s *UserServer) Unfollow(ctx context.Context, in *pb.FollowRequest) (*pb.Co
 	}
 	return &pb.CommResponse{Status: "Success"}, nil
 }
+
 func main() {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
