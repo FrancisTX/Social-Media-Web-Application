@@ -54,47 +54,51 @@ func (s *UserServer) CreatePost(ctx context.Context, in *pb.PostRequest) (*pb.Co
 func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.PostResponse, error) {
 	log.Printf("GetPosts Received: %v", in.Username)
 	rows, err := db.QueryPost(in.Username)
-	var posts []*pb.PostResponsePost
-	for rows.Next() {
-		post := new(pb.PostResponsePost)
-		err := rows.Scan(&post.Username, &post.Profilename, &post.Profileimg, &post.Text, &post.Img, &post.Time)
-		if err != nil {
-			fmt.Println("Error while query posts: %v", err)
-		}
-		posts = append(posts, post)
+	if err != nil {
+		return nil, err
 	}
-	return &pb.PostResponse{Posts: posts}, err
+	var posts []*pb.PostResponsePost
+	for _, row := range rows {
+		for row.Next() {
+			post := new(pb.PostResponsePost)
+			err := row.Scan(&post.Username, &post.Profilename, &post.Profileimg, &post.Text, &post.Img, &post.Time)
+			if err != nil {
+				log.Println("Error while query posts:", err)
+				continue
+			}
+			posts = append(posts, post)
+		}
+	}
+	log.Println("Query Post:", posts)
+	return &pb.PostResponse{Posts: posts}, nil
 }
- 
+
 func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.LoginResponse, error) {
 	log.Printf("GetUserInfo Received: %v", in.Username)
 	var err error
 	user, err := db.QueryUser(in.Username)
 	if err != nil {
-		log.Fatalln("GetUserInfo QueryUser Fault: %v", err)
+		log.Println("GetUserInfo QueryUser Fault:", err)
 		return nil, err
 	}
-	log.Println("GetUserInfo query user: %v", user)
+	log.Println("GetUserInfo query user:", user)
 	return &pb.LoginResponse{Username: user.Username, Profilename: user.ProfileName, Profileimg: user.ProfileImg}, nil
 }
 
 func (s *UserServer) Follow(ctx context.Context, in *pb.FollowRequest) (*pb.CommResponse, error) {
-	log.Println("server end follow start", in.Username1, in.Username2)
 	err := db.Follow(in.Username1, in.Username2)
 	if err != nil {
-		log.Fatalln("Follow Fault: %v", err)
-		return &pb.CommResponse{Status: "Fail"}, err
+		return nil, err
 	}
-	return &pb.CommResponse{Status: "Success"}, nil
+	return &pb.CommResponse{Status: "Success", Msg: "Follow Finish"}, nil
 }
 
 func (s *UserServer) Unfollow(ctx context.Context, in *pb.FollowRequest) (*pb.CommResponse, error) {
 	err := db.Unfollow(in.Username1, in.Username2)
 	if err != nil {
-		log.Fatalln("Unfollow Fault: %v", err)
-		return &pb.CommResponse{Status: "Fail"}, err
+		return nil, err
 	}
-	return &pb.CommResponse{Status: "Success"}, nil
+	return &pb.CommResponse{Status: "Success", Msg: "Unfollow Finish"}, nil
 }
 
 func main() {

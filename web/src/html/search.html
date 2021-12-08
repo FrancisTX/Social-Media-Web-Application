@@ -9,6 +9,22 @@
           integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
           crossorigin="anonymous"
         />
+        <style>
+            textarea {display: none;}
+            .closebtn {
+            margin-left: 15px;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            }
+
+            .closebtn:hover {
+            color: white;
+            }
+        </style>
     </head>
 <!-- sidebar starts -->
 <div class="sidebar">
@@ -28,21 +44,33 @@
     </form>
 </div>
 <!-- sidebar ends -->
+<!--Follow error (if any)-->
+<div flex="float">
+{{if .error}}
+    <div class="alert alert-danger" role="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        {{ .error }}
+    </div>
+{{end}}
+<!--Follow error ends-->
 <span class="userInfo">
     <img src="../assets/img/image.png" style="width: 100px;height: 100px;">
     
     <span style="display: block;">
     <span style="display: block;">{{.Error}}</span>
     <span style="display: block;">{{.Profilename}}</span>
-    <span name='follow' style="display: block;">@{{.Username}}</span>
- 
+    <span style="display: block;">@{{.Username}}</span>
+
     <form METHOD="POST" action="/follow">
-        <button type="submit" name="followbt" value={{.Username}}>Follow</button>
+        <button type="submit">Follow</button>
+        <textarea type="hidden" name="follow">{{.Username}}</textarea>
     </form>
     <form METHOD="POST" action="/unfollow">
-        <button type="submit" name="unfollowbt">UnFollow</button>
+        <button type="submit">UnFollow</button>
+        <textarea type="hidden" name="unfollow">{{.Username}}</textarea>
     </form>
     </span>
   </span>
+</div>
 </body>
 </html> 

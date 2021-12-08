@@ -93,15 +93,15 @@ func LoginPage(c *gin.Context) {
 
 func MainPage(c *gin.Context) {
 	posts, err := client.GetPosts(map[string]string{"username": USERNAME})
-	if err == nil {
-		c.HTML(http.StatusOK, "index.html", gin.H{"posts": posts, "curProfileimg": PROFILEIMG})
+	if err != nil {
+		log.Print("Error in mainpage: ", err)
 	}
+	log.Println("Post: ", posts)
+	c.HTML(http.StatusOK, "index.html", gin.H{"posts": posts, "curProfileimg": PROFILEIMG})
 }
 
 func ProfilePage(c *gin.Context) {
-	//log.Println("name: %s", USERNAME)
 	userInfo, err := client.GetUserInfo(USERNAME)
-	//log.Println("info: %v", userInfo)
 	if err == nil {
 		c.HTML(http.StatusOK, "profile.html", gin.H{"Profilename": userInfo.Profilename, "Username": userInfo.Username, "Profileimg": userInfo.Profileimg})
 	}
@@ -111,7 +111,7 @@ func UserSearch(c *gin.Context) {
 	usrname := c.Query("usrname")
 	userInfo, err := client.GetUserInfo(usrname)
 	if err != nil {
-		c.HTML(http.StatusUnauthorized, "search.html", gin.H{"Error": "User Not Found"})
+		c.HTML(http.StatusOK, "search.html", gin.H{"Error": "User Not Found"})
 	} else {
 		c.HTML(http.StatusOK, "search.html", gin.H{"Profilename": userInfo.Profilename, "Username": userInfo.Username, "Profileimg": userInfo.Profileimg})
 	}
@@ -119,21 +119,23 @@ func UserSearch(c *gin.Context) {
 
 func Follow(c *gin.Context) {
 	usrname := c.PostForm("follow")
-	usrname = "test"
-	log.Println("name %s", usrname)
-	m, err := client.Follow(USERNAME, usrname)
-	if m.Status != "Success" {
-		log.Fatal("Follow failed: %v", err)
+	_, err := client.Follow(USERNAME, usrname)
+	if err != nil {
+		userInfo, _ := client.GetUserInfo(usrname)
+		log.Println("Unfollow failed: ", err.Error())
+		c.HTML(http.StatusOK, "search.html", gin.H{"error": err.Error(), "Username": usrname, "Profilename": userInfo.Profilename, "Profileimg": userInfo.Profileimg})
 	}
 	location := url.URL{Path: "/home"}
 	c.Redirect(http.StatusFound, location.RequestURI())
 }
 
 func Unfollow(c *gin.Context) {
-	usrname := c.PostForm("follow")
-	m, err := client.Unfollow(USERNAME, usrname)
-	if m.Status != "Success" {
-		log.Fatal("Unfollow failed: %v", err)
+	usrname := c.PostForm("unfollow")
+	_, err := client.Unfollow(USERNAME, usrname)
+	if err != nil {
+		userInfo, _ := client.GetUserInfo(usrname)
+		log.Println("Unfollow failed: ", err.Error())
+		c.HTML(http.StatusOK, "search.html", gin.H{"error": err.Error(), "Username": usrname, "Profilename": userInfo.Profilename, "Profileimg": userInfo.Profileimg})
 	}
 	location := url.URL{Path: "/home"}
 	c.Redirect(http.StatusFound, location.RequestURI())

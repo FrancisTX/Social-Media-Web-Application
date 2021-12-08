@@ -9,7 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 )
- 
+
 const (
 	address = "localhost:5050"
 )
@@ -82,10 +82,11 @@ func GetPosts(args map[string]string) ([]*pb.PostResponsePost, error) {
 	defer cancel()
 
 	// GetPost
-
 	r, err := c.GetPosts(ctx, &pb.CommRequest{Username: args["username"]})
-	log.Println("return %v", r.Posts)
-	return r.Posts, err
+	if err != nil {
+		return nil, err
+	}
+	return r.Posts, nil
 }
 
 func GetUserInfo(usrname string) (*pb.LoginResponse, error) {
@@ -103,14 +104,9 @@ func GetUserInfo(usrname string) (*pb.LoginResponse, error) {
 
 	r, err := c.GetUserInfo(ctx, &pb.CommRequest{Username: usrname})
 	if err != nil {
-		log.Println("Search err: %v", err)
 		return nil, err
 	}
-	if r.Status == "Fail" {
-		log.Println("Search Fail in client")
-		return nil, err
-	}
-	return r, err
+	return r, nil
 }
 
 func Follow(username1, username2 string) (*pb.CommResponse, error) {
@@ -125,17 +121,11 @@ func Follow(username1, username2 string) (*pb.CommResponse, error) {
 	defer cancel()
 
 	//Follow
-	
 	r, err := c.Follow(ctx, &pb.FollowRequest{Username1: username1, Username2: username2})
 	if err != nil {
-		log.Println("Follow err: %v", err)
 		return nil, err
 	}
-	if r.Status == "Fail" {
-		log.Println("Follow Fail in client")
-		return nil, err
-	}
-	return r, err
+	return r, nil
 }
 
 func Unfollow(username1, username2 string) (*pb.CommResponse, error) {
@@ -151,12 +141,7 @@ func Unfollow(username1, username2 string) (*pb.CommResponse, error) {
 
 	r, err := c.Unfollow(ctx, &pb.FollowRequest{Username1: username1, Username2: username2})
 	if err != nil {
-		log.Println("Unfollow err: %v", err)
 		return nil, err
 	}
-	if r.Status == "Fail" {
-		log.Println("Unfollow Fail in client")
-		return nil, err
-	}
-	return r, err
+	return r, nil
 }

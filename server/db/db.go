@@ -11,7 +11,7 @@ import (
 
 const (
 	USERNAME = "root"
-	PASSWORD = ""
+	PASSWORD = "wtx20150914"
 	NETWORK  = "tcp"
 	SERVER   = "127.0.0.1"
 	PORT     = 3306
@@ -86,21 +86,33 @@ func CreatePost(username, text, img, time string) string {
 	defer db.Close()
 	_, err := db.Exec("insert INTO posts(username,text,img,time) values(?,?,?,?)", username, text, img, time)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return "Error while creating post"
 	}
 	fmt.Println("\nPost created")
 	return ""
 }
 
-func QueryPost(username string) (*sql.Rows, error) {
+func QueryPost(username string) ([]*sql.Rows, error) {
 	db := GetDB()
 	defer db.Close()
-	row, err := db.Query("select u.username, u.profilename, u.profileimg, p.text, p.img, p.time from posts p, users u where u.username = ? and p.username = u.username;", username)
+	followers, err := Queryfollowers(username)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("Rows: ", err)
+		return nil, err
 	}
-	return row, nil
+	log.Println("QuerPost followers:", followers)
+
+	var rows []*sql.Rows
+	for _, follower := range followers {
+		row, err := db.Query("select u.username, u.profilename, u.profileimg, p.text, p.img, p.time from posts p, users u where u.username = ? and p.username = ?;", follower, follower)
+		if err != nil {
+			log.Println("DB error querying posts:", err)
+			continue
+		}
+		rows = append(rows, row)
+	}
+	return rows, nil
 }
 
 func InsertUser(username, password, profilename, profileimg string) string {
@@ -124,7 +136,7 @@ func QueryUser(username string) (*User, error) {
 	user := new(User)
 	row := db.QueryRow("SELECT * FROM users WHERE username=?", username)
 	if err := row.Scan(&user.ID, &user.Username, &user.Password, &user.ProfileName, &user.ProfileImg); err != nil {
-		fmt.Printf("Error while mapping user: %v", err)
+		fmt.Printf("Query user in db error: %v", err)
 		return user, err
 	}
 	fmt.Println("\nUser found: ", *user)
@@ -140,7 +152,7 @@ func CreateFollowerTable() error {
         followingUserName VARCHAR(64) NOT NULL
 	); `
 
-	if _, err := db.Exec(sql); err != nil { 
+	if _, err := db.Exec(sql); err != nil {
 		return err
 	}
 	fmt.Println("Follower Table created")
@@ -150,13 +162,14 @@ func CreateFollowerTable() error {
 func Follow(username1, username2 string) error {
 	db := GetDB()
 	defer db.Close()
+	var id int
 	var name1 string
 	var name2 string
-	row := db.QueryRow("SELECT * FROM followers(userName, followingUserName) values(?, ?)", username1, username2)
-	if err := row.Scan(&name1, &name2); err != nil {
+	row := db.QueryRow("SELECT * FROM followers WHERE userName=? AND followingUserName=?", username1, username2)
+	if err := row.Scan(&id, &name1, &name2); err != nil {
 		_, err := db.Exec("INSERT INTO followers(userName, followingUserName) values(?, ?)", username1, username2)
 		if err != nil {
-			log.Println("error: %v", err)
+			log.Println("Follow db error: ", err)
 			return err
 		}
 		return nil
@@ -168,15 +181,41 @@ func Follow(username1, username2 string) error {
 func Unfollow(username1, username2 string) error {
 	db := GetDB()
 	defer db.Close()
-	row := db.QueryRow("SELECT * FROM followers(userName, followingUserName) values(?, ?)", username1, username2)
-	if row != nil {
-		_, err := db.Exec("DELETE FROM followers(userName, followingUserName) values(?, ?)", username1, username2)
+	var id int
+	var name1 string
+	var name2 string
+	row := db.QueryRow("SELECT * FROM followers WHERE userName=? AND followingUserName=?", username1, username2)
+	if err := row.Scan(&id, &name1, &name2); err != nil {
+		return err
+	} else {
+		_, err := db.Exec("DELETE FROM followers WHERE userName=? AND followingUserName=?", username1, username2)
 		if err != nil {
-			log.Println("error: %v", err)
+			log.Println("Unfollow db error: ", err)
 			return err
 		}
 		return nil
-	} else {
-		return errors.New("Not follow yet")
 	}
+}
+
+func Queryfollowers(username string) ([]string, error) {
+	db := GetDB()
+	defer db.Close()
+
+	rows, err := db.Query("SELECT followingUserName FROM followers WHERE userName=?", username)
+	if err != nil {
+		return nil, err
+	}
+
+	var followers []string
+	for rows.Next() {
+		var user string
+		err := rows.Scan(&user)
+		if err != nil {
+			fmt.Println("DB error while query followers:", err)
+			continue
+		}
+		followers = append(followers, user)
+	}
+	followers = append(followers, username)
+	return followers, nil
 }
