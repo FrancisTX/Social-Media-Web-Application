@@ -2,18 +2,16 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
+	"strings"
 	pb "main/proto"
 	"main/server/auth"
 	"main/server/db"
+	"main/server/storage"
 	"net"
-
+	"flag"
+	"time"
 	"google.golang.org/grpc"
-)
-
-const (
-	port = ":5050"
 )
 
 type UserServer struct {
@@ -101,30 +99,53 @@ func (s *UserServer) Unfollow(ctx context.Context, in *pb.FollowRequest) (*pb.Co
 	return &pb.CommResponse{Status: "Success", Msg: "Unfollow Finish"}, nil
 }
 
+
+
+var userkvs *storage.Userkvstore
+var postkvs *storage.Postkvstore
+var followkvs *storage.Followkvstore
+
 func main() {
-	lis, err := net.Listen("tcp", port)
+	cluster := flag.String("cluster", "http://127.0.0.1:9021", "comma separated cluster peers")
+	id := flag.Int("id", 1, "node ID")
+	port := flag.String("port", "9121", "server port")
+	flag.Parse()
+
+	proposeUserC := make(chan string)
+	//proposePostC := make(chan string)
+	//proposeFollowC := make(chan string)
+	defer close(proposeUserC)
+	//defer close(proposePostC)
+	//defer close(proposeFollowC)
+
+	getSnapshotUser := func() ([]byte, error) { return userkvs.GetSnapshot() }
+	commitUserC, errorUserC, snapshotterReadyUser := storage.NewRaftNode(*id, strings.Split(*cluster, ","), getSnapshotUser, proposeUserC)
+	//commitPostC, errorPostC, snapshotterReady := storage.NewRaftNode(*id, strings.Split(*cluster, ","), getSnapshot, proposePostC)
+	//commitFollowC, errorFollowC, snapshotterReady := storage.NewRaftNode(*id, strings.Split(*cluster, ","), getSnapshot, proposeFollowC)
+
+	userkvs = storage.NewUserKVStore(<-snapshotterReadyUser, proposeUserC, commitUserC, errorUserC)
+	//postkvs = storage.NewKVStore(<-snapshotterReady, proposePostC, commitPostC, errorPostC)
+	//followkvs = storage.NewKVStore(<-snapshotterReady, proposeFollowC, commitFollowC, errorFollowC)
+
+	userkvs.Propose("test", storage.Userinfo{Password: "test", Profilename: "bot", Profileimg: ""})
+	time.Sleep(5 * time.Second)
+	if v, ok := userkvs.Lookup("test"); ok {
+		log.Printf(v.Profilename)
+	} else {
+		log.Printf("***********************************************")
+	}
+	
+	lis, err := net.Listen("tcp", ":" + *port)
+
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
 	pb.RegisterUserServiceServer(s, &UserServer{})
-	err = db.CreateUserTable()
-	if err != nil {
-		fmt.Println("Error while creating User table: ", err)
-	}
-
-	err = db.CreatePostTable()
-	if err != nil {
-		fmt.Println("Error while creating Post table: ", err)
-	}
-
-	err = db.CreateFollowerTable()
-	if err != nil {
-		fmt.Println("Error while creating Follower table: ", err)
-	}
 
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+
 }
