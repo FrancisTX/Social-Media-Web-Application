@@ -170,7 +170,11 @@ func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.L
 
 	var userinfo Userinfo
 	json.Unmarshal(body, &userinfo)
-	return &pb.LoginResponse{Username: in.Username, Profilename: userinfo.Profilename, Profileimg: userinfo.Profileimg}, nil
+	if userinfo != (Userinfo{}) {
+		return &pb.LoginResponse{Username: in.Username, Profilename: userinfo.Profilename, Profileimg: userinfo.Profileimg}, nil
+	} else {
+		return &pb.LoginResponse{}, errors.New("user not found")
+	}
 }
 
 func (s *UserServer) Follow(ctx context.Context, in *pb.FollowRequest) (*pb.CommResponse, error) {

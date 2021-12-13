@@ -54,12 +54,8 @@ func SignUp(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.html", gin.H{
 			"success": "User created! Please sign in.",
 		})
-		return
 	} else {
-		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-			"error": r["msg"],
-		})
-		return
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": r["msg"],})
 	}
 }
 
@@ -116,7 +112,7 @@ func UserSearch(c *gin.Context) {
 	username := c.Query("username")
 	userInfo, err := client.GetUserInfo(username)
 	if err != nil {
-		c.HTML(http.StatusOK, "search.html", gin.H{"Error": "User Not Found"})
+		c.HTML(http.StatusUnauthorized, "search.html", gin.H{})
 	} else {
 		c.HTML(http.StatusOK, "search.html", gin.H{"Profilename": userInfo.Profilename, "Username": userInfo.Username, "Profileimg": userInfo.Profileimg})
 	}
@@ -129,10 +125,11 @@ func Follow(c *gin.Context) {
 		userInfo, _ := client.GetUserInfo(username)
 		log.Println("Unfollow failed: ", err.Error())
 		c.HTML(http.StatusOK, "search.html", gin.H{"error": err.Error(), "Username": username, "Profilename": userInfo.Profilename, "Profileimg": userInfo.Profileimg})
+	} else {
+		time.Sleep(1 * time.Second)
+		location := url.URL{Path: "/home"}
+		c.Redirect(http.StatusFound, location.RequestURI())
 	}
-	time.Sleep(1 * time.Second)
-	location := url.URL{Path: "/home"}
-	c.Redirect(http.StatusFound, location.RequestURI())
 }
 
 func Unfollow(c *gin.Context) {
@@ -142,10 +139,12 @@ func Unfollow(c *gin.Context) {
 		userInfo, _ := client.GetUserInfo(username)
 		log.Println("Unfollow failed: ", err.Error())
 		c.HTML(http.StatusOK, "search.html", gin.H{"error": err.Error(), "Username": username, "Profilename": userInfo.Profilename, "Profileimg": userInfo.Profileimg})
+	} else {
+		time.Sleep(1 * time.Second)
+		location := url.URL{Path: "/home"}
+		c.Redirect(http.StatusFound, location.RequestURI())
 	}
-	time.Sleep(1 * time.Second)
-	location := url.URL{Path: "/home"}
-	c.Redirect(http.StatusFound, location.RequestURI())
+	
 }
 func main() {
 	server := gin.Default()

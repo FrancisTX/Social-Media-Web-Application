@@ -11,27 +11,14 @@
         />
         <style>
             textarea {display: none;}
-            .closebtn {
-            margin-left: 15px;
-            font-weight: bold;
-            float: right;
-            font-size: 22px;
-            line-height: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-            }
-
-            .closebtn:hover {
-            color: white;
-            }
         </style>
     </head>
 <!-- sidebar starts -->
 <div class="sidebar">
-    <div class="sidebarOption active">
-        <span class="material-icons"> home </span>
-        <h2>Home</h2>
-    </div>
+  <form class="sidebarOption" METHOD="POST" ACTION="/navhome">
+    <span class="material-icons"> home </span>
+    <button type="submit">Home</button>
+  </form>
   
     <form class="sidebarOption" METHOD="POST" ACTION="/navprofile">
         <span class="material-icons"> perm_identity </span>
@@ -46,31 +33,59 @@
 <!-- sidebar ends -->
 <!--Follow error (if any)-->
 <div flex="float">
+</div>
+<!--Follow error ends-->
+<div class="feed">
+
 {{if .error}}
     <div class="alert alert-danger" role="alert">
         <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
         {{ .error }}
     </div>
 {{end}}
-<!--Follow error ends-->
-<span class="userInfo">
-    <img src="../assets/img/image.png" style="width: 100px;height: 100px;">
-    
-    <span style="display: block;">
-    <span style="display: block;">{{.Error}}</span>
-    <span style="display: block;">{{.Profilename}}</span>
-    <span style="display: block;">@{{.Username}}</span>
+    <div class="search__header">
+        <h2> Search Results </h2>
+    </div>
+    {{ if .Profilename }}
+    <div class="user">
+      <div class="user__avatar">
+        <img src={{.Profileimg}} alt=""/>
+      </div>
 
-    <form METHOD="POST" action="/follow">
-        <button type="submit">Follow</button>
+      <div class="user__body">
+        <div class="user__header">
+          <div class="user__headerText">
+            <h3>{{ .Profilename }}<span class="material-icons user__badge"> verified </span></h3>
+          </div>
+          <div class="user__headerDescription">
+            <h4>@{{.Username}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class = "fbtn">
+        <form METHOD="POST" action="/follow">
+        <button type="submit" class = "follow__btn">Follow</button>
         <textarea type="hidden" name="follow">{{.Username}}</textarea>
-    </form>
-    <form METHOD="POST" action="/unfollow">
-        <button type="submit">UnFollow</button>
+        </form>
+    </div>
+    <div class="fbtn">
+        <form METHOD="POST" action="/unfollow">
+        <button type="submit" class = "unfollow__btn">UnFollow</button>
         <textarea type="hidden" name="unfollow">{{.Username}}</textarea>
-    </form>
-    </span>
-  </span>
+        </form>
+      </div>
+    </div>
+    {{ end }}
+</div>
+
+</div>
+<div class="widgets">
+  <form METHOD="GET" ACTION="/search">
+    <div class = "widgets__input">
+      <span class="material-icons widgets__searchIcon"> search </span>
+      <input type="text" name="username" placeholder="Search Users" />
+    </div>
+  </form>
 </div>
 </body>
 </html> 

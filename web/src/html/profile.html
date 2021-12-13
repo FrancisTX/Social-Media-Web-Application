@@ -42,35 +42,16 @@
 
 
     <!-- profile info (followers and following) starts -->
-  <div float: left;> 
-    <span class="userInfo">
-      <img src="../assets/img/image.png" style="height: 32%;width: 26%;">
-      
-      <span style="display: block;">
-      <span style="display: block;">{{.Profilename}}</span>
-      <span style="display: block;">@{{.Username}}</span>
-      <button>Followers</button> <button>Following</button>
-      </span>
-    </span>
-  
-    <!-- profile info ends-->
+  <div class="feed"> 
 
-    <span class="card-container">
-    <h1>Edit Profile</h1>
-    <form>
+    <div class="card-container">
+      <h1>Profile</h1>
       <div class="profile-pic-div">
-        <img src="../assets/img/image.png" id="photo">
-        <input type="file" id="file">
-        <label for="file" id="uploadBtn">Choose Photo</label>
+        <img src={{.Profileimg}} id="photo">
       </div>
-      <p>Upload a new profile picture!</p>
-      <div class="input-block">
-        <input id="signup-email" placeholder="New Profile Name" type="text" required>
-      </div>
-    <button type="submit" class="btndone">DONE</button>
-    </form>
-  </span>
-      <!-- post ends -->
+      <h2>{{.Profilename}}</h2>
+      <h3>@{{.Username}}</h3>
+    </div>
   </div>
     <!-- feed ends -->
 
