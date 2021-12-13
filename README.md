@@ -14,7 +14,7 @@ If you're able to drop this gen proto script into the root of the example direct
 
 ## Usage
 ```
-git clone
+git clone https://github.com/os3224/final-project-0b5a2e16-FrancisTX-hannnnk1231.git
 cd final-project-0b5a2e16-FrancisTX-hannnnk1231
 goreman start
 ```
