@@ -12,3 +12,9 @@ Obviously, this script also requires protobufs, grpc, and the go-bindings thereo
 
 If you're able to drop this gen proto script into the root of the example directory they provide, rename `helloworld` to `helloworldpb`, and the script executes without complain, then you're probably good to use this everywhere!
 
+## Usage
+```
+git clone
+cd final-project-0b5a2e16-FrancisTX-hannnnk1231
+goreman start
+```
