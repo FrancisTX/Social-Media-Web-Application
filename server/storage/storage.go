@@ -28,12 +28,11 @@ func main() {
 		commitC, errorC, snapshotterReady := newRaftNode(*id, *storage, strings.Split(*cluster, ","), getSnapshot, proposeC)
 		postkvs = NewPostKVStore(<-snapshotterReady, proposeC, commitC, errorC)
 		serveHttpKVAPIPost(postkvs, *port, errorC)
-	} 
-//	else if *storage == "follow" {
-//		var followkvs *Followkvstore		
-//		getSnapshot := func() ([]byte, error) { return followkvs.GetSnapshot() }
-//		commitC, errorC, snapshotterReady := newRaftNode(*id, strings.Split(*cluster, ","), getSnapshot, proposeC)
-//		followkvs = newKVStore(<-snapshotterReady, proposeC, commitC, errorC)
-//		serveHttpKVAPIFollow(followkvs, *port, errorC)
-//	}
+	} else if *storage == "follow" {
+		var followkvs *Followkvstore		
+		getSnapshot := func() ([]byte, error) { return followkvs.GetSnapshot() }
+		commitC, errorC, snapshotterReady := newRaftNode(*id, *storage, strings.Split(*cluster, ","), getSnapshot, proposeC)
+		followkvs = NewFollowKVStore(<-snapshotterReady, proposeC, commitC, errorC)
+		serveHttpKVAPIFollow(followkvs, *port, errorC)
+	}
 }

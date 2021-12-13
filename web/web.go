@@ -12,7 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var USERNAME, PROFILENAME, PROFILEIMG string
+var USERNAME, PROFILENAME string
+var PROFILEIMG = "./assets/img/image.png"
 
 func LoginAuth(c *gin.Context) {
 	var username, _ = c.GetPostForm("username")
@@ -40,6 +41,9 @@ func SignUp(c *gin.Context) {
 	var password, _ = c.GetPostForm("password")
 	var profilename, _ = c.GetPostForm("profilename")
 	var profileimg, _ = c.GetPostForm("profileimg")
+	if profileimg != "" {
+		profileimg = fmt.Sprintf("./assets/img/%s.jpg", username)
+	}
 
 	r := client.SignUp(map[string]string{"username": username, "password": password, "profilename": profilename, "profileimg": profileimg})
 
@@ -67,8 +71,8 @@ func LogOut(c *gin.Context) {
 
 func CreatePost(c *gin.Context) {
 	var text = c.PostForm("content")
-	client.CreatePost(map[string]string{"username": USERNAME, "text": text, "img": "", "time": time.Now().String()})
-	time.Sleep(2 * time.Second)
+	client.CreatePost(map[string]string{"username": USERNAME, "text": text, "img": "", "time": time.Now().Format("2006-01-02 15:04:05")})
+	time.Sleep(1 * time.Second)
 	posts, err := client.GetPosts(map[string]string{"username": USERNAME})
 	if err == nil {
 		c.HTML(http.StatusOK, "index.html", gin.H{"posts": posts, "curProfileimg": PROFILEIMG})
@@ -109,8 +113,8 @@ func ProfilePage(c *gin.Context) {
 }
 
 func UserSearch(c *gin.Context) {
-	usrname := c.Query("usrname")
-	userInfo, err := client.GetUserInfo(usrname)
+	username := c.Query("username")
+	userInfo, err := client.GetUserInfo(username)
 	if err != nil {
 		c.HTML(http.StatusOK, "search.html", gin.H{"Error": "User Not Found"})
 	} else {
@@ -119,25 +123,27 @@ func UserSearch(c *gin.Context) {
 }
 
 func Follow(c *gin.Context) {
-	usrname := c.PostForm("follow")
-	_, err := client.Follow(USERNAME, usrname)
+	username := c.PostForm("follow")
+	_, err := client.Follow(USERNAME, username)
 	if err != nil {
-		userInfo, _ := client.GetUserInfo(usrname)
+		userInfo, _ := client.GetUserInfo(username)
 		log.Println("Unfollow failed: ", err.Error())
-		c.HTML(http.StatusOK, "search.html", gin.H{"error": err.Error(), "Username": usrname, "Profilename": userInfo.Profilename, "Profileimg": userInfo.Profileimg})
+		c.HTML(http.StatusOK, "search.html", gin.H{"error": err.Error(), "Username": username, "Profilename": userInfo.Profilename, "Profileimg": userInfo.Profileimg})
 	}
+	time.Sleep(1 * time.Second)
 	location := url.URL{Path: "/home"}
 	c.Redirect(http.StatusFound, location.RequestURI())
 }
 
 func Unfollow(c *gin.Context) {
-	usrname := c.PostForm("unfollow")
-	_, err := client.Unfollow(USERNAME, usrname)
+	username := c.PostForm("unfollow")
+	_, err := client.Unfollow(USERNAME, username)
 	if err != nil {
-		userInfo, _ := client.GetUserInfo(usrname)
+		userInfo, _ := client.GetUserInfo(username)
 		log.Println("Unfollow failed: ", err.Error())
-		c.HTML(http.StatusOK, "search.html", gin.H{"error": err.Error(), "Username": usrname, "Profilename": userInfo.Profilename, "Profileimg": userInfo.Profileimg})
+		c.HTML(http.StatusOK, "search.html", gin.H{"error": err.Error(), "Username": username, "Profilename": userInfo.Profilename, "Profileimg": userInfo.Profileimg})
 	}
+	time.Sleep(1 * time.Second)
 	location := url.URL{Path: "/home"}
 	c.Redirect(http.StatusFound, location.RequestURI())
 }

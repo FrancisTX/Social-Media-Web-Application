@@ -75,14 +75,14 @@ func GetPosts(args map[string]string) ([]*pb.PostResponsePost, error) {
 	return r.Posts, nil
 }
 
-func GetUserInfo(usrname string) (*pb.LoginResponse, error) {
+func GetUserInfo(username string) (*pb.LoginResponse, error) {
 	conn, c, ctx, cancel := BuildConnections()
 	defer conn.Close()
 	defer cancel()
 
 	//Get User Info
 
-	r, err := c.GetUserInfo(ctx, &pb.CommRequest{Username: usrname})
+	r, err := c.GetUserInfo(ctx, &pb.CommRequest{Username: username})
 	if err != nil {
 		return nil, err
 	}

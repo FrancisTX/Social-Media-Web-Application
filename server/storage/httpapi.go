@@ -72,39 +72,49 @@ func (kv *Postkvstore) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
-/*
+
 
 func (kv *Followkvstore) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	key := r.RequestURI
+	username := r.RequestURI
 	defer r.Body.Close()
 	switch r.Method {
-	case http.MethodPut:
-		user, err := io.ReadAll(r.Body)
-		if err != nil {
-			log.Printf("Failed to read on PUT (%v)\n", err)
-			http.Error(w, "Failed on PUT", http.StatusBadRequest)
-			return
-		}
-		var userinfo Userinfo
-		json.Unmarshal(user, &userinfo)
-		kv.Propose(key, userinfo)
-		w.WriteHeader(http.StatusNoContent)
+		case http.MethodPut: // Follow
+			username2, err := io.ReadAll(r.Body)
+			if err != nil {
+				log.Printf("Failed to read on PUT (%v)\n", err)
+				http.Error(w, "Failed on PUT", http.StatusBadRequest)
+				return
+			}
+			res := kv.Propose(username, string(username2), "follow")
+			w.Write([]byte(res))
 
-	case http.MethodGet:
-		if user, ok := kv.Lookup(key); ok {
-			userinfo, _ := json.Marshal(user)
-			w.Write(userinfo)
-		} else {
-			http.Error(w, "Failed to GET", http.StatusNotFound)
-		}
+		case http.MethodGet: // Get Follow
+			if users, ok := kv.Lookup(username); ok {
+				followedusers, _ := json.Marshal(users)
+				w.Write(followedusers)
+			} else {
+				http.Error(w, "Failed to GET", http.StatusNotFound)
+			}
 
-	default:
-		w.Header().Set("Allow", http.MethodPut)
-		w.Header().Add("Allow", http.MethodGet)
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		case http.MethodDelete: // Unfollow
+			username2, err := io.ReadAll(r.Body)
+			if err != nil {
+				log.Printf("Failed to read on PUT (%v)\n", err)
+				http.Error(w, "Failed on PUT", http.StatusBadRequest)
+				return
+			}
+			res := kv.Propose(username, string(username2), "unfollow")
+			w.Write([]byte(res))
+
+		default:
+			w.Header().Set("Allow", http.MethodPut)
+			w.Header().Add("Allow", http.MethodGet)
+			w.Header().Add("Allow", http.MethodDelete)
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
-*/
+
+
 func serveHttpKVAPIUser(kv *Userkvstore, port int, errorC <-chan error) {
 	srv := http.Server{
 		Addr: ":" + strconv.Itoa(port),
@@ -137,7 +147,7 @@ func serveHttpKVAPIPost(kv *Postkvstore, port int, errorC <-chan error) {
 	}
 }
 
-/*
+
 func serveHttpKVAPIFollow(kv *Followkvstore, port int, errorC <-chan error) {
 	srv := http.Server{
 		Addr: ":" + strconv.Itoa(port),
@@ -153,4 +163,3 @@ func serveHttpKVAPIFollow(kv *Followkvstore, port int, errorC <-chan error) {
 		log.Fatal(err)
 	}
 }
-*/

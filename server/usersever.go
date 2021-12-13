@@ -5,7 +5,6 @@ import (
     "bytes"
 	"log"
 	pb "main/proto"
-	"main/server/db"
 	"net"
 	"flag"
 	"google.golang.org/grpc"
@@ -13,6 +12,7 @@ import (
     "io/ioutil"
     "net/http"
     "sort"
+    "errors"
 )
 
 const (
@@ -127,7 +127,39 @@ func (s *UserServer) CreatePost(ctx context.Context, in *pb.PostRequest) (*pb.Co
 func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.PostResponse, error) {
 	log.Printf("GetPosts Received: %v", in.Username)
 
-	resp, err := http.Get(HOST+*postport+"/"+in.Username)
+	// Get all following users
+	resp, _ := http.Get(HOST+*followport+"/"+in.Username)
+	body, _ := ioutil.ReadAll(resp.Body)
+	var users []string
+	json.Unmarshal(body, &users)
+	users = append(users, in.Username)
+
+	var post_responses []*pb.PostResponsePost
+
+	for _, user := range users {
+		resp_user, _ := http.Get(HOST+*userport+"/"+user)
+		body_user, _ := ioutil.ReadAll(resp_user.Body)
+		var userinfo Userinfo
+		json.Unmarshal(body_user, &userinfo)
+		resp, _ := http.Get(HOST+*postport+"/"+user)
+		body, _ := ioutil.ReadAll(resp.Body)
+		var posts []Post
+		json.Unmarshal(body, &posts)
+		for _, post := range posts {
+			post_response := &pb.PostResponsePost{Username: user, Profilename: userinfo.Profilename, Profileimg: userinfo.Profileimg, Text: post.Text, Img: "", Time: post.Time}
+			post_responses = append(post_responses, post_response)
+		}
+	}
+	sort.Slice(post_responses, func(i, j int) bool {
+	  return post_responses[i].Time > post_responses[j].Time
+	})
+	return &pb.PostResponse{Posts: post_responses}, nil
+}
+
+func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.LoginResponse, error) {
+	log.Printf("GetUserInfo Received: %v", in.Username)
+
+	resp, err := http.Get(HOST+*userport+"/"+in.Username)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -136,46 +168,54 @@ func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.Post
 	   log.Fatalln(err)
 	}
 
-	var posts []Post
-	json.Unmarshal(body, &posts)
-	sort.Slice(posts, func(i, j int) bool {
-	  return posts[i].Time > posts[j].Time
-	})
-	var post_responses []*pb.PostResponsePost
-	for _, post := range posts {
-		post_response := &pb.PostResponsePost{Username: in.Username, Profilename: "test", Profileimg: "", Text: post.Text, Img: "", Time: post.Time}
-		post_responses = append(post_responses, post_response)		
-	}
-	log.Println("Query Post:", post_responses)
-	return &pb.PostResponse{Posts: post_responses}, nil
-}
-
-func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.LoginResponse, error) {
-	log.Printf("GetUserInfo Received: %v", in.Username)
-	var err error
-	user, err := db.QueryUser(in.Username)
-	if err != nil {
-		log.Println("GetUserInfo QueryUser Fault:", err)
-		return nil, err
-	}
-	log.Println("GetUserInfo query user:", user)
-	return &pb.LoginResponse{Username: user.Username, Profilename: user.ProfileName, Profileimg: user.ProfileImg}, nil
+	var userinfo Userinfo
+	json.Unmarshal(body, &userinfo)
+	return &pb.LoginResponse{Username: in.Username, Profilename: userinfo.Profilename, Profileimg: userinfo.Profileimg}, nil
 }
 
 func (s *UserServer) Follow(ctx context.Context, in *pb.FollowRequest) (*pb.CommResponse, error) {
-	err := db.Follow(in.Username1, in.Username2)
+	client := &http.Client{}
+    req, err := http.NewRequest(http.MethodPut, HOST+*followport+"/"+in.Username1, bytes.NewBuffer([]byte(in.Username2)))
 	if err != nil {
-		return nil, err
+		log.Fatalf("An Error Occured %v", err)
 	}
-	return &pb.CommResponse{Status: "Success", Msg: "Follow Finish"}, nil
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("An Error Occured %v", err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+	   log.Fatalln(err)
+	}
+	if err := string(body); err == "" {
+		return &pb.CommResponse{Status: "Success", Msg: "Follow Finish"}, nil
+	} else {
+		return nil, errors.New(err)
+	}
+	
 }
 
 func (s *UserServer) Unfollow(ctx context.Context, in *pb.FollowRequest) (*pb.CommResponse, error) {
-	err := db.Unfollow(in.Username1, in.Username2)
+	client := &http.Client{}
+    req, err := http.NewRequest(http.MethodDelete, HOST+*followport+"/"+in.Username1, bytes.NewBuffer([]byte(in.Username2)))
 	if err != nil {
-		return nil, err
+		log.Fatalf("An Error Occured %v", err)
 	}
-	return &pb.CommResponse{Status: "Success", Msg: "Unfollow Finish"}, nil
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("An Error Occured %v", err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+	   log.Fatalln(err)
+	}
+	if err := string(body); err == "" {
+		return &pb.CommResponse{Status: "Success", Msg: "UnFollow Finish"}, nil
+	} else {
+		return nil, errors.New(err)
+	}
 }
 
 

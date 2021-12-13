@@ -102,7 +102,9 @@ body {
 /* tweet box */
 .tweetbox__input img {
   border-radius: 50%;
+  width: 40px;
   height: 40px;
+  object-fit: cover;
 }
 
 .tweetBox {
@@ -127,6 +129,7 @@ body {
   font-size: 20px;
   border: none;
   outline: none;
+  resize: none;
 }
 
 .tweetBox__tweetButton {
@@ -143,16 +146,19 @@ body {
 }
 
 /* post */
-.post__avatar img {
-  border-radius: 50%;
-  height: 40px;
-}
 
 .post {
   display: flex;
   align-items: flex-start;
   border-bottom: 1px solid var(--twitter-background);
   padding-bottom: 10px;
+}
+
+.post__avatar img {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
 }
 
 .post__body img {
@@ -168,9 +174,12 @@ body {
 }
 
 .post__headerSpecial {
-  font-weight: 600;
   font-size: 12px;
   color: gray;
+}
+
+.post__username {
+  font-weight: 800;
 }
 
 .post__headerText h3 {
@@ -216,3 +225,6 @@ body {
   color: gray;
 }
 
+input:focus, textarea:focus, select:focus{
+  outline: none;
+}
