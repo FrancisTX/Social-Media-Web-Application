@@ -12,9 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var USERNAME = ""
-var PROFILENAME = ""
-var PROFILEIMG = ""
+var USERNAME, PROFILENAME, PROFILEIMG string
 
 func LoginAuth(c *gin.Context) {
 	var username, _ = c.GetPostForm("username")
@@ -70,9 +68,12 @@ func LogOut(c *gin.Context) {
 func CreatePost(c *gin.Context) {
 	var text = c.PostForm("content")
 	client.CreatePost(map[string]string{"username": USERNAME, "text": text, "img": "", "time": time.Now().String()})
+	time.Sleep(2 * time.Second)
 	posts, err := client.GetPosts(map[string]string{"username": USERNAME})
 	if err == nil {
 		c.HTML(http.StatusOK, "index.html", gin.H{"posts": posts, "curProfileimg": PROFILEIMG})
+	} else {
+		log.Print("Error in mainpage: ", err)
 	}
 }
 

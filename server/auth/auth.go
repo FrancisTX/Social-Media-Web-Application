@@ -1,19 +1,17 @@
 package auth
 
-import "main/server/db"
-
-func CheckPassword(user *db.User, p2 string) (*db.User, string) {
-	if user.Password == p2 {
-		return user, ""
+func CheckPassword(userinfo *Userinfo, p2 string) (*Userinfo, string) {
+	if userinfo.Password == p2 {
+		return userinfo, ""
 	} else {
-		return user, "password is not correct"
+		return userinfo, "password is not correct"
 	}
 }
 
-func Auth(username string, password string) (*db.User, string) {
-	if user, err := db.QueryUser(username); err == nil {
-		return CheckPassword(user, password)
+func Auth(username string, password string, userinfo *Userinfo) (*Userinfo, string) {
+	if userinfo != nil {
+		return CheckPassword(userinfo, password)
 	} else {
-		return user, "user is not exist"
+		return userinfo, "user does not exist"
 	}
 }

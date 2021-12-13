@@ -1,4 +1,4 @@
-package storage
+package main
 
 import (
 	"context"
@@ -69,7 +69,7 @@ var defaultSnapshotCount uint64 = 10000
 // provided the proposal channel. All log entries are replayed over the
 // commit channel, followed by a nil message (to indicate the channel is
 // current), then new log entries. To shutdown, close proposeC and read errorC.
-func NewRaftNode(id int, peers []string, getSnapshot func() ([]byte, error), proposeC <-chan string) (<-chan *commit, <-chan error, <-chan *snap.Snapshotter) {
+func newRaftNode(id int, storage string, peers []string, getSnapshot func() ([]byte, error), proposeC <-chan string) (<-chan *commit, <-chan error, <-chan *snap.Snapshotter) {
 
 	commitC := make(chan *commit)
 	errorC := make(chan error)
@@ -80,8 +80,8 @@ func NewRaftNode(id int, peers []string, getSnapshot func() ([]byte, error), pro
 		errorC:      errorC,
 		id:          id,
 		peers:       peers,
-		waldir:      fmt.Sprintf("raftserver-%d", id),
-		snapdir:     fmt.Sprintf("raftserver-%d-snap", id),
+		waldir:      fmt.Sprintf("server/storage/%sserver-%d", storage, id),
+		snapdir:     fmt.Sprintf("server/storage/%sserver-%d-snap", storage, id),
 		getSnapshot: getSnapshot,
 		snapCount:   defaultSnapshotCount,
 		stopc:       make(chan struct{}),

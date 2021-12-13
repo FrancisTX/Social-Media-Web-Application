@@ -14,20 +14,24 @@ const (
 	address = "localhost:5050"
 )
 
-func Login(args map[string]string) map[string]string {
+func BuildConnections() (*grpc.ClientConn, pb.UserServiceClient, context.Context, context.CancelFunc) {
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
 	c := pb.NewUserServiceClient(conn)
-
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	return conn, c, ctx, cancel
+}
+
+func Login(args map[string]string) map[string]string {
+	conn, c, ctx, cancel := BuildConnections()
+	defer conn.Close()
 	defer cancel()
 
 	// Login
 
-	r, err := c.Login(ctx, &pb.LoginRequest{Username: args["username"], Password: args["password"]})
+	r, _ := c.Login(ctx, &pb.LoginRequest{Username: args["username"], Password: args["password"]})
 	if r.Status == "Success" {
 		return map[string]string{"username": r.Username, "profilename": r.Profilename, "profileimg": r.Profileimg, "status": r.Status}
 	} else {
@@ -37,48 +41,30 @@ func Login(args map[string]string) map[string]string {
 }
 
 func SignUp(args map[string]string) map[string]string {
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
+	conn, c, ctx, cancel := BuildConnections()
 	defer conn.Close()
-	c := pb.NewUserServiceClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	// SignUp
 
-	r, err := c.SignUp(ctx, &pb.SignUpRequest{Username: args["username"], Password: args["password"], Profilename: args["profilename"], Profileimg: args["profileimg"]})
+	r, _ := c.SignUp(ctx, &pb.SignUpRequest{Username: args["username"], Password: args["password"], Profilename: args["profilename"], Profileimg: args["profileimg"]})
 	return map[string]string{"status": r.Status, "msg": r.Msg}
 }
 
 func CreatePost(args map[string]string) map[string]string {
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
+	conn, c, ctx, cancel := BuildConnections()
 	defer conn.Close()
-	c := pb.NewUserServiceClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	// CreatePost
 
-	r, err := c.CreatePost(ctx, &pb.PostRequest{Username: args["username"], Text: args["text"], Img: args["img"], Time: args["time"]})
+	r, _ := c.CreatePost(ctx, &pb.PostRequest{Username: args["username"], Text: args["text"], Img: args["img"], Time: args["time"]})
 	return map[string]string{"status": r.Status, "msg": r.Msg}
 }
 
 func GetPosts(args map[string]string) ([]*pb.PostResponsePost, error) {
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
+	conn, c, ctx, cancel := BuildConnections()
 	defer conn.Close()
-	c := pb.NewUserServiceClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	// GetPost
@@ -90,14 +76,8 @@ func GetPosts(args map[string]string) ([]*pb.PostResponsePost, error) {
 }
 
 func GetUserInfo(usrname string) (*pb.LoginResponse, error) {
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
+	conn, c, ctx, cancel := BuildConnections()
 	defer conn.Close()
-	c := pb.NewUserServiceClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	//Get User Info
@@ -110,14 +90,8 @@ func GetUserInfo(usrname string) (*pb.LoginResponse, error) {
 }
 
 func Follow(username1, username2 string) (*pb.CommResponse, error) {
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
+	conn, c, ctx, cancel := BuildConnections()
 	defer conn.Close()
-	c := pb.NewUserServiceClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	//Follow
@@ -129,14 +103,8 @@ func Follow(username1, username2 string) (*pb.CommResponse, error) {
 }
 
 func Unfollow(username1, username2 string) (*pb.CommResponse, error) {
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
+	conn, c, ctx, cancel := BuildConnections()
 	defer conn.Close()
-	c := pb.NewUserServiceClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	r, err := c.Unfollow(ctx, &pb.FollowRequest{Username1: username1, Username2: username2})

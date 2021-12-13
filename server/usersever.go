@@ -2,35 +2,91 @@ package main
 
 import (
 	"context"
+    "bytes"
 	"log"
-	"strings"
 	pb "main/proto"
-	"main/server/auth"
 	"main/server/db"
-	"main/server/storage"
 	"net"
 	"flag"
-	"time"
 	"google.golang.org/grpc"
+	"encoding/json"
+    "io/ioutil"
+    "net/http"
+    "sort"
 )
+
+const (
+	port = ":5050"
+	HOST = "http://127.0.0.1:"
+)
+
+var userport, postport, followport *string
 
 type UserServer struct {
 	pb.UnimplementedUserServiceServer
 }
 
+type Userinfo struct {
+	Password    string
+	Profilename string
+	Profileimg  string
+}
+
+type Post struct {
+	Text string
+	Time string
+}
+
 func (s *UserServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
 	log.Printf("Received: %v, %v", in.Username, in.Password)
-	if user, err := auth.Auth(in.Username, in.Password); err == "" {
-		return &pb.LoginResponse{Username: user.Username, Profilename: user.ProfileName, Profileimg: user.ProfileImg, Status: "Success", Msg: err}, nil
-	} else {
-		return &pb.LoginResponse{Status: "Fail", Msg: err}, nil
+
+	resp, err := http.Get(HOST+*userport+"/"+in.Username)
+	if err != nil {
+		log.Fatalln(err)
 	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+	   log.Fatalln(err)
+	}
+
+	var userinfo Userinfo
+	json.Unmarshal(body, &userinfo)
+
+	if userinfo != (Userinfo{}) {
+		if userinfo.Password == in.Password {
+			return &pb.LoginResponse{Username: in.Username, Profilename: userinfo.Profilename, Profileimg: userinfo.Profileimg, Status: "Success", Msg: ""}, nil
+		} else {
+			return &pb.LoginResponse{Status: "Fail", Msg: "password is not correct"}, nil
+		}
+	} else {
+		return &pb.LoginResponse{Status: "Fail", Msg: "user does not exist"}, nil
+	} 
 
 }
 
 func (s *UserServer) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.CommResponse, error) {
 	log.Printf("Received: %v, %v, %v, %v", in.Username, in.Password, in.Profilename, in.Profileimg)
-	if err := db.InsertUser(in.Username, in.Password, in.Profilename, in.Profileimg); err == "" {
+	user := Userinfo {
+		Password: in.Password,
+		Profilename: in.Profilename,
+		Profileimg: in.Profileimg,
+	}
+	userinfo, _ := json.Marshal(user)
+	client := &http.Client{}
+    req, err := http.NewRequest(http.MethodPut, HOST+*userport+"/"+in.Username, bytes.NewBuffer(userinfo))
+	if err != nil {
+		log.Fatalf("An Error Occured %v", err)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("An Error Occured %v", err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+	   log.Fatalln(err)
+	}
+	if err := string(body); err == "" {
 		return &pb.CommResponse{Status: "Success", Msg: err}, nil
 	} else {
 		log.Printf("Fail to insert the user: %v", err)
@@ -40,7 +96,26 @@ func (s *UserServer) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Comm
 }
 
 func (s *UserServer) CreatePost(ctx context.Context, in *pb.PostRequest) (*pb.CommResponse, error) {
-	if err := db.CreatePost(in.Username, in.Text, in.Img, in.Time); err == "" {
+	post := Post {
+		Text: in.Text,
+		Time: in.Time,
+	}
+	newpost, _ := json.Marshal(post)
+	client := &http.Client{}
+    req, err := http.NewRequest(http.MethodPut, HOST+*postport+"/"+in.Username, bytes.NewBuffer(newpost))
+	if err != nil {
+		log.Fatalf("An Error Occured %v", err)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("An Error Occured %v", err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+	   log.Fatalln(err)
+	}
+	if err := string(body); err == "" {
 		return &pb.CommResponse{Status: "Success", Msg: err}, nil
 	} else {
 		log.Printf("Fail to create the post: %v", err)
@@ -51,24 +126,28 @@ func (s *UserServer) CreatePost(ctx context.Context, in *pb.PostRequest) (*pb.Co
 
 func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.PostResponse, error) {
 	log.Printf("GetPosts Received: %v", in.Username)
-	rows, err := db.QueryPost(in.Username)
+
+	resp, err := http.Get(HOST+*postport+"/"+in.Username)
 	if err != nil {
-		return nil, err
+		log.Fatalln(err)
 	}
-	var posts []*pb.PostResponsePost
-	for _, row := range rows {
-		for row.Next() {
-			post := new(pb.PostResponsePost)
-			err := row.Scan(&post.Username, &post.Profilename, &post.Profileimg, &post.Text, &post.Img, &post.Time)
-			if err != nil {
-				log.Println("Error while query posts:", err)
-				continue
-			}
-			posts = append(posts, post)
-		}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+	   log.Fatalln(err)
 	}
-	log.Println("Query Post:", posts)
-	return &pb.PostResponse{Posts: posts}, nil
+
+	var posts []Post
+	json.Unmarshal(body, &posts)
+	sort.Slice(posts, func(i, j int) bool {
+	  return posts[i].Time > posts[j].Time
+	})
+	var post_responses []*pb.PostResponsePost
+	for _, post := range posts {
+		post_response := &pb.PostResponsePost{Username: in.Username, Profilename: "test", Profileimg: "", Text: post.Text, Img: "", Time: post.Time}
+		post_responses = append(post_responses, post_response)		
+	}
+	log.Println("Query Post:", post_responses)
+	return &pb.PostResponse{Posts: post_responses}, nil
 }
 
 func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.LoginResponse, error) {
@@ -100,42 +179,13 @@ func (s *UserServer) Unfollow(ctx context.Context, in *pb.FollowRequest) (*pb.Co
 }
 
 
-
-var userkvs *storage.Userkvstore
-var postkvs *storage.Postkvstore
-var followkvs *storage.Followkvstore
-
 func main() {
-	cluster := flag.String("cluster", "http://127.0.0.1:9021", "comma separated cluster peers")
-	id := flag.Int("id", 1, "node ID")
-	port := flag.String("port", "9121", "server port")
+	userport = flag.String("userport", "10380", "user port")
+	postport = flag.String("postport", "11380", "post port")
+	followport = flag.String("followport", "12380", "follow port")
 	flag.Parse()
 
-	proposeUserC := make(chan string)
-	//proposePostC := make(chan string)
-	//proposeFollowC := make(chan string)
-	defer close(proposeUserC)
-	//defer close(proposePostC)
-	//defer close(proposeFollowC)
-
-	getSnapshotUser := func() ([]byte, error) { return userkvs.GetSnapshot() }
-	commitUserC, errorUserC, snapshotterReadyUser := storage.NewRaftNode(*id, strings.Split(*cluster, ","), getSnapshotUser, proposeUserC)
-	//commitPostC, errorPostC, snapshotterReady := storage.NewRaftNode(*id, strings.Split(*cluster, ","), getSnapshot, proposePostC)
-	//commitFollowC, errorFollowC, snapshotterReady := storage.NewRaftNode(*id, strings.Split(*cluster, ","), getSnapshot, proposeFollowC)
-
-	userkvs = storage.NewUserKVStore(<-snapshotterReadyUser, proposeUserC, commitUserC, errorUserC)
-	//postkvs = storage.NewKVStore(<-snapshotterReady, proposePostC, commitPostC, errorPostC)
-	//followkvs = storage.NewKVStore(<-snapshotterReady, proposeFollowC, commitFollowC, errorFollowC)
-
-	userkvs.Propose("test", storage.Userinfo{Password: "test", Profilename: "bot", Profileimg: ""})
-	time.Sleep(5 * time.Second)
-	if v, ok := userkvs.Lookup("test"); ok {
-		log.Printf(v.Profilename)
-	} else {
-		log.Printf("***********************************************")
-	}
-	
-	lis, err := net.Listen("tcp", ":" + *port)
+	lis, err := net.Listen("tcp", port)
 
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
