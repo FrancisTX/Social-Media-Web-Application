@@ -29,6 +29,8 @@ file.addEventListener('change', function(){
         const reader = new FileReader(); 
 
         reader.addEventListener('load', function(){
+            console.log(choosedFile)
+            console.log(reader.result)
             img.setAttribute('src', reader.result);
         });
 

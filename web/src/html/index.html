@@ -43,12 +43,16 @@
 
       <!-- tweetbox starts -->
       <div class="tweetBox">
-        <form METHOD="POST" ACTION="/post">
+        <form METHOD="POST" ACTION="/post" enctype="multipart/form-data" >
           <div class="tweetbox__input">
             <img src={{.curProfileimg}} alt=""/>
             <textarea type="text" cols="40" rows="5" placeholder="What's happening?" name="content"></textarea>
           </div>
-          <button type="submit" class="tweetBox__tweetButton" id="send">Send</button>
+          <div class="tweetbox__btn">
+            <input type="file" id="selectedFile" accept=".jpg, .jpeg, .png" name="postimg" style="display: none;">
+            <input type="button" class="tweetBox__imgButton" value="Upload" onclick="document.getElementById('selectedFile').click();" />
+            <button type="submit" class="tweetBox__tweetButton" id="send">Send</button>
+          </div>
         </form>
       </div>
       <!-- tweetbox ends -->

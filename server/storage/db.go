@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"log"
 	"sync"
+	"html/template"
 
 	"go.etcd.io/etcd/raft/v3/raftpb"
 	"go.etcd.io/etcd/server/v3/etcdserver/api/snap"
@@ -14,7 +15,7 @@ import (
 type Userinfo struct {
 	Password    string
 	Profilename string
-	Profileimg  string
+	Profileimg  template.URL
 }
 
 type Userkvstore struct {
@@ -148,6 +149,7 @@ func (s *Userkvstore) recoverFromSnapshot(snapshot []byte) error {
 type Post struct {
 	Text string
 	Time string
+	Img  template.URL
 }
 
 type Postkvstore struct {

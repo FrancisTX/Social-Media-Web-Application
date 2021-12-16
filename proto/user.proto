@@ -12,6 +12,8 @@ service UserService {
 
     rpc GetUserInfo (CommRequest) returns (LoginResponse) {}
 
+    rpc GetMultiUserInfo (CommRequest) returns (MultiUserResponse) {}
+
     rpc CreatePost (PostRequest) returns (CommResponse) {}
 
     rpc GetPosts (CommRequest) returns (PostResponse) {}
@@ -78,4 +80,8 @@ message PostResponse {
         string time = 6;
     }
     repeated post posts = 1;
+}
+
+message MultiUserResponse {
+    repeated LoginResponse users = 1;
 }

@@ -108,7 +108,6 @@ body {
 }
 
 .tweetBox {
-  padding-bottom: 10px;
   border-bottom: 8px solid var(--twitter-background);
   padding-right: 10px;
 }
@@ -132,18 +131,34 @@ body {
   resize: none;
 }
 
+.tweetbox__btn {
+  display: flex;
+  padding: 20px;
+}
+
+.tweetBox__imgButton {
+  background-color: grey;
+  border: none;
+  color: white;
+  font-weight: 900;
+  border-radius: 30px;
+  width: 80px;
+  height: 40px;
+  margin-left: auto;
+  margin-right: 20px;
+}
+
 .tweetBox__tweetButton {
   background-color: var(--twitter-color);
   border: none;
   color: white;
   font-weight: 900;
-
   border-radius: 30px;
   width: 80px;
   height: 40px;
-  margin-top: 20px;
-  margin-left: auto;
 }
+
+
 
 /* post */
 

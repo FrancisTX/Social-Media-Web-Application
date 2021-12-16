@@ -13,6 +13,7 @@ import (
     "net/http"
     "sort"
     "errors"
+    "html/template"
 )
 
 const (
@@ -29,12 +30,13 @@ type UserServer struct {
 type Userinfo struct {
 	Password    string
 	Profilename string
-	Profileimg  string
+	Profileimg  template.URL
 }
 
 type Post struct {
 	Text string
 	Time string
+	Img  template.URL
 }
 
 func (s *UserServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
@@ -99,6 +101,7 @@ func (s *UserServer) CreatePost(ctx context.Context, in *pb.PostRequest) (*pb.Co
 	post := Post {
 		Text: in.Text,
 		Time: in.Time,
+		Img:  in.Img,
 	}
 	newpost, _ := json.Marshal(post)
 	client := &http.Client{}
@@ -146,7 +149,7 @@ func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.Post
 		var posts []Post
 		json.Unmarshal(body, &posts)
 		for _, post := range posts {
-			post_response := &pb.PostResponsePost{Username: user, Profilename: userinfo.Profilename, Profileimg: userinfo.Profileimg, Text: post.Text, Img: "", Time: post.Time}
+			post_response := &pb.PostResponsePost{Username: user, Profilename: userinfo.Profilename, Profileimg: userinfo.Profileimg, Text: post.Text, Img: post.Img, Time: post.Time}
 			post_responses = append(post_responses, post_response)
 		}
 	}

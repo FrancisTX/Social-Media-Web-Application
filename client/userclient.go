@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"time"
+	"html/template"
 
 	pb "main/proto"
 
@@ -24,7 +25,7 @@ func BuildConnections() (*grpc.ClientConn, pb.UserServiceClient, context.Context
 	return conn, c, ctx, cancel
 }
 
-func Login(args map[string]string) map[string]string {
+func Login(args map[string]string) (map[string]string, template.URL) {
 	conn, c, ctx, cancel := BuildConnections()
 	defer conn.Close()
 	defer cancel()
@@ -33,32 +34,32 @@ func Login(args map[string]string) map[string]string {
 
 	r, _ := c.Login(ctx, &pb.LoginRequest{Username: args["username"], Password: args["password"]})
 	if r.Status == "Success" {
-		return map[string]string{"username": r.Username, "profilename": r.Profilename, "profileimg": r.Profileimg, "status": r.Status}
+		return map[string]string{"username": r.Username, "profilename": r.Profilename, "status": r.Status}, r.Profileimg
 	} else {
-		return map[string]string{"status": r.Status, "msg": r.Msg}
+		return map[string]string{"status": r.Status, "msg": r.Msg}, template.URL("")
 	}
 
 }
 
-func SignUp(args map[string]string) map[string]string {
+func SignUp(args map[string]string, profileimg template.URL) map[string]string {
 	conn, c, ctx, cancel := BuildConnections()
 	defer conn.Close()
 	defer cancel()
 
 	// SignUp
 
-	r, _ := c.SignUp(ctx, &pb.SignUpRequest{Username: args["username"], Password: args["password"], Profilename: args["profilename"], Profileimg: args["profileimg"]})
+	r, _ := c.SignUp(ctx, &pb.SignUpRequest{Username: args["username"], Password: args["password"], Profilename: args["profilename"], Profileimg: profileimg})
 	return map[string]string{"status": r.Status, "msg": r.Msg}
 }
 
-func CreatePost(args map[string]string) map[string]string {
+func CreatePost(args map[string]string, img template.URL) map[string]string {
 	conn, c, ctx, cancel := BuildConnections()
 	defer conn.Close()
 	defer cancel()
 
 	// CreatePost
 
-	r, _ := c.CreatePost(ctx, &pb.PostRequest{Username: args["username"], Text: args["text"], Img: args["img"], Time: args["time"]})
+	r, _ := c.CreatePost(ctx, &pb.PostRequest{Username: args["username"], Text: args["text"], Img: img, Time: args["time"]})
 	return map[string]string{"status": r.Status, "msg": r.Msg}
 }
 

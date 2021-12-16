@@ -43,7 +43,7 @@
         Sign Up
         <span class="underline"></span>
       </button>
-      <form class="form form-signup" METHOD="POST" ACTION="/signup">
+      <form class="form form-signup" enctype="multipart/form-data" METHOD="POST" ACTION="/signup">
         <fieldset>
           <div class="profile-pic-div">
             <img src="../assets/img/image.png" id="photo">
@@ -62,10 +62,6 @@
           <div class="input-block">
             <label for="signup-password">Password</label>
             <input id="signup-password" type="password" name="password" required>
-          </div>
-          <div class="input-block">
-            <label for="signup-password-confirm">Confirm password</label>
-            <input id="signup-password-confirm" type="password" required>
           </div>
         </fieldset>
         <button type="submit" class="btn-signup">Continue</button>

@@ -6,25 +6,47 @@ import (
 	"net/http"
 	"net/url"
 	"time"
-
+	"io/ioutil"
+	"encoding/base64"
 	"main/client"
+	"html/template"
+	"mime/multipart"
 
 	"github.com/gin-gonic/gin"
 )
 
 var USERNAME, PROFILENAME string
-var PROFILEIMG = "./assets/img/image.png"
+var PROFILEIMG template.URL
+
+func imgProcess(img *multipart.FileHeader) template.URL {
+	imgfile, _ := img.Open()
+	defer imgfile.Close()
+
+	pimg, _ := ioutil.ReadAll(imgfile)
+	var base64Encoding string
+	imgType := http.DetectContentType(pimg)
+
+	switch imgType {
+	case "image/jpeg":
+		base64Encoding += "data:image/jpeg;base64,"
+	case "image/png":
+		base64Encoding += "data:image/png;base64,"
+	}
+
+	base64Encoding += base64.StdEncoding.EncodeToString(pimg)
+	return template.URL(base64Encoding)
+}
 
 func LoginAuth(c *gin.Context) {
 	var username, _ = c.GetPostForm("username")
 	var password, _ = c.GetPostForm("password")
 
-	r := client.Login(map[string]string{"username": username, "password": password})
+	r, pimg := client.Login(map[string]string{"username": username, "password": password})
 
 	if r["status"] == "Success" {
 		USERNAME = r["username"]
 		PROFILENAME = r["profilename"]
-		PROFILEIMG = r["profileimg"]
+		PROFILEIMG = pimg
 		location := url.URL{Path: "/home"}
 		c.Redirect(http.StatusFound, location.RequestURI())
 		return
@@ -40,17 +62,14 @@ func SignUp(c *gin.Context) {
 	var username, _ = c.GetPostForm("username")
 	var password, _ = c.GetPostForm("password")
 	var profilename, _ = c.GetPostForm("profilename")
-	var profileimg, _ = c.GetPostForm("profileimg")
-	if profileimg != "" {
-		profileimg = fmt.Sprintf("./assets/img/%s.jpg", username)
-	}
-
-	r := client.SignUp(map[string]string{"username": username, "password": password, "profilename": profilename, "profileimg": profileimg})
+	var profileimg, _ = c.FormFile("profileimg")
+	
+	r := client.SignUp(map[string]string{"username": username, "password": password, "profilename": profilename,}, imgProcess(profileimg))
 
 	if r["status"] == "Success" {
 		USERNAME = r["username"]
 		PROFILENAME = r["profilename"]
-		PROFILEIMG = r["profileimg"]
+		PROFILEIMG = template.URL(r["profileimg"])
 		c.HTML(http.StatusOK, "login.html", gin.H{
 			"success": "User created! Please sign in.",
 		})
@@ -67,7 +86,9 @@ func LogOut(c *gin.Context) {
 
 func CreatePost(c *gin.Context) {
 	var text = c.PostForm("content")
-	client.CreatePost(map[string]string{"username": USERNAME, "text": text, "img": "", "time": time.Now().Format("2006-01-02 15:04:05")})
+	var postimg, _ = c.FormFile("postimg")
+	print(postimg)
+	client.CreatePost(map[string]string{"username": USERNAME, "text": text, "time": time.Now().Format("2006-01-02 15:04:05")}, imgProcess(postimg))
 	time.Sleep(1 * time.Second)
 	posts, err := client.GetPosts(map[string]string{"username": USERNAME})
 	if err == nil {
