@@ -28,6 +28,20 @@ cd server/storage
 go test -v -cover
 ```
 
+## Hashicorp raft demo
+Although we use etcd/raft in our main branch, we till try to implement the simple key-value storage in hashicorp/raft in the branch ``` hashicorp_raft```.
+### Usage
+```
+cd hashicorp_demo
+./start.sh 1
+```
+```
+./start.sh 2
+```
+```
+./start.sh 3
+```
+Now, we have already opened the three raft node in a cluster.
 
 ## Protobuf Generator
 
