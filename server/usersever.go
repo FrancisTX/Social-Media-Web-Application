@@ -6,7 +6,6 @@ import (
 	"log"
 	pb "main/proto"
 	"net"
-	"flag"
 	"google.golang.org/grpc"
 	"encoding/json"
     "io/ioutil"
@@ -19,9 +18,11 @@ import (
 const (
 	port = ":5050"
 	HOST = "http://127.0.0.1:"
+	userport = "10380"
+	postport = "11380"
+	followport = "12380"
 )
 
-var userport, postport, followport *string
 
 type UserServer struct {
 	pb.UnimplementedUserServiceServer
@@ -42,7 +43,7 @@ type Post struct {
 func (s *UserServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
 	log.Printf("Received: %v, %v", in.Username, in.Password)
 
-	resp, err := http.Get(HOST+*userport+"/"+in.Username)
+	resp, err := http.Get(HOST+userport+"/"+in.Username)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -75,7 +76,7 @@ func (s *UserServer) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.Comm
 	}
 	userinfo, _ := json.Marshal(user)
 	client := &http.Client{}
-    req, err := http.NewRequest(http.MethodPut, HOST+*userport+"/"+in.Username, bytes.NewBuffer(userinfo))
+    req, err := http.NewRequest(http.MethodPut, HOST+userport+"/"+in.Username, bytes.NewBuffer(userinfo))
 	if err != nil {
 		log.Fatalf("An Error Occured %v", err)
 	}
@@ -105,7 +106,7 @@ func (s *UserServer) CreatePost(ctx context.Context, in *pb.PostRequest) (*pb.Co
 	}
 	newpost, _ := json.Marshal(post)
 	client := &http.Client{}
-    req, err := http.NewRequest(http.MethodPut, HOST+*postport+"/"+in.Username, bytes.NewBuffer(newpost))
+    req, err := http.NewRequest(http.MethodPut, HOST+postport+"/"+in.Username, bytes.NewBuffer(newpost))
 	if err != nil {
 		log.Fatalf("An Error Occured %v", err)
 	}
@@ -131,7 +132,7 @@ func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.Post
 	log.Printf("GetPosts Received: %v", in.Username)
 
 	// Get all following users
-	resp, _ := http.Get(HOST+*followport+"/"+in.Username)
+	resp, _ := http.Get(HOST+followport+"/"+in.Username)
 	body, _ := ioutil.ReadAll(resp.Body)
 	var users []string
 	json.Unmarshal(body, &users)
@@ -140,11 +141,11 @@ func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.Post
 	var post_responses []*pb.PostResponsePost
 
 	for _, user := range users {
-		resp_user, _ := http.Get(HOST+*userport+"/"+user)
+		resp_user, _ := http.Get(HOST+userport+"/"+user)
 		body_user, _ := ioutil.ReadAll(resp_user.Body)
 		var userinfo Userinfo
 		json.Unmarshal(body_user, &userinfo)
-		resp, _ := http.Get(HOST+*postport+"/"+user)
+		resp, _ := http.Get(HOST+postport+"/"+user)
 		body, _ := ioutil.ReadAll(resp.Body)
 		var posts []Post
 		json.Unmarshal(body, &posts)
@@ -162,7 +163,7 @@ func (s *UserServer) GetPosts(ctx context.Context, in *pb.CommRequest) (*pb.Post
 func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.LoginResponse, error) {
 	log.Printf("GetUserInfo Received: %v", in.Username)
 
-	resp, err := http.Get(HOST+*userport+"/"+in.Username)
+	resp, err := http.Get(HOST+userport+"/"+in.Username)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -182,7 +183,7 @@ func (s *UserServer) GetUserInfo(ctx context.Context, in *pb.CommRequest) (*pb.L
 
 func (s *UserServer) Follow(ctx context.Context, in *pb.FollowRequest) (*pb.CommResponse, error) {
 	client := &http.Client{}
-    req, err := http.NewRequest(http.MethodPut, HOST+*followport+"/"+in.Username1, bytes.NewBuffer([]byte(in.Username2)))
+    req, err := http.NewRequest(http.MethodPut, HOST+followport+"/"+in.Username1, bytes.NewBuffer([]byte(in.Username2)))
 	if err != nil {
 		log.Fatalf("An Error Occured %v", err)
 	}
@@ -205,7 +206,7 @@ func (s *UserServer) Follow(ctx context.Context, in *pb.FollowRequest) (*pb.Comm
 
 func (s *UserServer) Unfollow(ctx context.Context, in *pb.FollowRequest) (*pb.CommResponse, error) {
 	client := &http.Client{}
-    req, err := http.NewRequest(http.MethodDelete, HOST+*followport+"/"+in.Username1, bytes.NewBuffer([]byte(in.Username2)))
+    req, err := http.NewRequest(http.MethodDelete, HOST+followport+"/"+in.Username1, bytes.NewBuffer([]byte(in.Username2)))
 	if err != nil {
 		log.Fatalf("An Error Occured %v", err)
 	}
@@ -227,11 +228,6 @@ func (s *UserServer) Unfollow(ctx context.Context, in *pb.FollowRequest) (*pb.Co
 
 
 func main() {
-	userport = flag.String("userport", "10380", "user port")
-	postport = flag.String("postport", "11380", "post port")
-	followport = flag.String("followport", "12380", "follow port")
-	flag.Parse()
-
 	lis, err := net.Listen("tcp", port)
 
 	if err != nil {

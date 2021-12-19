@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<body>
+    <head>
+        <link rel="stylesheet" href="../assets/css/index.css" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+          integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+          crossorigin="anonymous"
+        />
+        <style>
+            textarea {display: none;}
+        </style>
+    </head>
+<!-- sidebar starts -->
+<div class="sidebar">
+  <form class="sidebarOption" METHOD="POST" ACTION="/navhome">
+    <span class="material-icons"> home </span>
+    <button type="submit">Home</button>
+  </form>
+  
+    <form class="sidebarOption" METHOD="POST" ACTION="/navprofile">
+        <span class="material-icons"> perm_identity </span>
+        <button type="submit">Profile</button>
+    </form>
+  
+    <form class="sidebarOption" METHOD="POST" ACTION="/logout">
+        <span class="material-icons"> logout </span>
+        <button type="submit">Log out</button>
+    </form>
+</div>
+<!-- sidebar ends -->
+<!--Follow error (if any)-->
+<div flex="float">
+</div>
+<!--Follow error ends-->
+<div class="feed">
+
+{{if .error}}
+    <div class="alert alert-danger" role="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        {{ .error }}
+    </div>
+{{end}}
+    <div class="search__header">
+        <h2> Search Results </h2>
+    </div>
+    {{ if .Profilename }}
+    <div class="user">
+      <div class="user__avatar">
+        <img src={{.Profileimg}} alt=""/>
+      </div>
+
+      <div class="user__body">
+        <div class="user__header">
+          <div class="user__headerText">
+            <h3>{{ .Profilename }}<span class="material-icons user__badge"> verified </span></h3>
+          </div>
+          <div class="user__headerDescription">
+            <h4>@{{.Username}}</h4>
+          </div>
+        </div>
+      </div>
+      <div class = "fbtn">
+        <form METHOD="POST" action="/follow">
+        <button type="submit" class = "follow__btn">Follow</button>
+        <textarea type="hidden" name="follow">{{.Username}}</textarea>
+        </form>
+    </div>
+    <div class="fbtn">
+        <form METHOD="POST" action="/unfollow">
+        <button type="submit" class = "unfollow__btn">UnFollow</button>
+        <textarea type="hidden" name="unfollow">{{.Username}}</textarea>
+        </form>
+      </div>
+    </div>
+    {{ end }}
+</div>
+
+</div>
+<div class="widgets">
+  <form METHOD="POST" ACTION="/search">
+    <div class = "widgets__input">
+      <span class="material-icons widgets__searchIcon"> search </span>
+      <input type="text" name="username" placeholder="Search Users" />
+    </div>
+  </form>
+</div>
+</body>
+</html> 

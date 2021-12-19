@@ -1,8 +1,8 @@
 # Use goreman to run
 
-web: ./web/web
+web: ./web
 
-server: ./server/server --userport 10380 --postport 11380 --followport 12380
+server: ./server/server
 
 userstorage1: ./server/storage/storage --storage user --id 1 --cluster http://127.0.0.1:10379,http://127.0.0.1:20379,http://127.0.0.1:30379 --port 10380
 userstorage2: ./server/storage/storage --storage user --id 2 --cluster http://127.0.0.1:10379,http://127.0.0.1:20379,http://127.0.0.1:30379 --port 20380

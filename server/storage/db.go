@@ -99,7 +99,6 @@ func (s *Userkvstore) readCommits(commitC <-chan *commit, errorC <-chan error) {
 				log.Fatalf("raftexample: could not decode message (%v)", err)
 			}
 			s.mu.Lock()
-			log.Printf("loading commit key %v and value %v", dataKv.Username, dataKv.Userinfo)
 			s.UserkvStore[dataKv.Username] = dataKv.Userinfo
 			s.mu.Unlock()
 		}
@@ -221,7 +220,6 @@ func (s *Postkvstore) readCommits(commitC <-chan *commit, errorC <-chan error) {
 				log.Fatalf("raftexample: could not decode message (%v)", err)
 			}
 			s.mu.Lock()
-			log.Printf("loading commit key %v and value %v", dataKv.Username, dataKv.Post)
 			s.PostkvStore[dataKv.Username] = append(s.PostkvStore[dataKv.Username], dataKv.Post)
 			s.mu.Unlock()
 		}
@@ -361,7 +359,6 @@ func (s *Followkvstore) readCommits(commitC <-chan *commit, errorC <-chan error)
 				log.Fatalf("raftexample: could not decode message (%v)", err)
 			}
 			s.mu.Lock()
-			log.Printf("loading commit key %v and value %v, event = %v", dataKv.Username, dataKv.Username2, dataKv.Event)
 			if dataKv.Event == "follow" {
 				s.FollowkvStore[dataKv.Username] = append(s.FollowkvStore[dataKv.Username], dataKv.Username2)
 			} else {

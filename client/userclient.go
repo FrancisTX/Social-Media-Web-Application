@@ -16,7 +16,7 @@ const (
 )
 
 func BuildConnections() (*grpc.ClientConn, pb.UserServiceClient, context.Context, context.CancelFunc) {
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(100 * 1024 * 1024), grpc.MaxCallSendMsgSize(100 * 1024 * 1024)))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

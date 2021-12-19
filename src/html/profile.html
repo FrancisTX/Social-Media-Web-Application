@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
+    <link rel="stylesheet" href="../assets/css/index.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+      crossorigin="anonymous"
+    />
+    <link href="../assets/css/profile.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <!-- sidebar starts -->
+    <div class="sidebar">
+      <form class="sidebarOption" METHOD="POST" ACTION="/navhome">
+        <span class="material-icons"> home </span>
+        <button type="submit">Home</button>
+      </form>
+
+      <div class="sidebarOption active">
+        <span class="material-icons"> perm_identity </span>
+        <h2>Profile</h2>
+      </div>
+
+      <form class="sidebarOption" METHOD="POST" ACTION="/logout">
+        <span class="material-icons"> logout </span>
+        <button type="submit">Log out</button>
+      </form>
+
+    </div>
+    <!-- sidebar ends -->
+
+
+    <!-- profile info (followers and following) starts -->
+  <div class="feed"> 
+
+    <div class="card-container">
+      <h1>Profile</h1>
+      <div class="profile-pic-div">
+        <img src={{.Profileimg}} id="photo">
+      </div>
+      <h2>{{.Profilename}}</h2>
+      <h3>@{{.Username}}</h3>
+    </div>
+  </div>
+    <!-- feed ends -->
+
+    <!-- widgets starts -->
+    <div class="widgets">
+    
+    </div>
+    <!-- widgets ends -->
+  </body>
+</html>
+
+<script src="../assets/js/login.js"></script>
+
