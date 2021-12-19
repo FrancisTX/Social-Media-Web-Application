@@ -43,6 +43,22 @@ cd hashicorp_demo
 ```
 Now, we have already opened the three raft node in a cluster.
 
+### Sample request
+For set the "key", "val" into the storage:
+```
+curl -X POST http://127.0.0.1:8000/key -d '{"key": "val"}' -L
+```
+
+For get the "key" from the storage:
+```
+curl http://127.0.0.1:8001/key/"key" -L
+```
+
+For delete the "key" from the storage:
+```
+curl -X DELETE http://127.0.0.1:8000/key/"key" -L
+```
+
 ## Protobuf Generator
 
 Put this shell script in the root of every project I make that generates code from protobuf files.
