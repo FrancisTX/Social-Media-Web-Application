@@ -41,9 +41,10 @@ cd hashicorp_demo
 ```
 ./start.sh 3
 ```
-Now, we have already opened the three raft node in a cluster.
+Now, we have already opened the three raft nodes in a cluster.
 
 ### Sample request
+(Note that any write operation can be only done in leader node, and the read operation can be applied for any nodes.)
 For set the "key", "val" into the storage:
 ```
 curl -X POST http://127.0.0.1:8000/key -d '{"key": "val"}' -L
