@@ -96,7 +96,7 @@ func (s *Userkvstore) readCommits(commitC <-chan *commit, errorC <-chan error) {
 			var dataKv Userkv
 			dec := gob.NewDecoder(bytes.NewBufferString(data))
 			if err := dec.Decode(&dataKv); err != nil {
-				log.Fatalf("raftexample: could not decode message (%v)", err)
+				log.Fatalf("could not decode message (%v)", err)
 			}
 			s.mu.Lock()
 			s.UserkvStore[dataKv.Username] = dataKv.Userinfo
@@ -217,7 +217,7 @@ func (s *Postkvstore) readCommits(commitC <-chan *commit, errorC <-chan error) {
 			var dataKv postkv
 			dec := gob.NewDecoder(bytes.NewBufferString(data))
 			if err := dec.Decode(&dataKv); err != nil {
-				log.Fatalf("raftexample: could not decode message (%v)", err)
+				log.Fatalf("could not decode message (%v)", err)
 			}
 			s.mu.Lock()
 			s.PostkvStore[dataKv.Username] = append(s.PostkvStore[dataKv.Username], dataKv.Post)
@@ -356,7 +356,7 @@ func (s *Followkvstore) readCommits(commitC <-chan *commit, errorC <-chan error)
 			var dataKv followkv
 			dec := gob.NewDecoder(bytes.NewBufferString(data))
 			if err := dec.Decode(&dataKv); err != nil {
-				log.Fatalf("raftexample: could not decode message (%v)", err)
+				log.Fatalf("could not decode message (%v)", err)
 			}
 			s.mu.Lock()
 			if dataKv.Event == "follow" {

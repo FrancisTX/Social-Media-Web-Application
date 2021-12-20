@@ -14,7 +14,7 @@ func main() {
 
 	proposeC := make(chan string)
 	defer close(proposeC)
-
+ 
 	// raft provides a commit stream for the proposals from the http api
 	if *storage == "user"{
 		var userkvs *Userkvstore

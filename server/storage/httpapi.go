@@ -119,7 +119,7 @@ func serveHttpKVAPIUser(kv *Userkvstore, port int, errorC <-chan error) {
 	srv := http.Server{
 		Addr: ":" + strconv.Itoa(port),
 		Handler: kv,
-	}
+	} 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			log.Fatal(err)

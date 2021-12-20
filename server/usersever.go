@@ -68,7 +68,6 @@ func (s *UserServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginR
 }
 
 func (s *UserServer) SignUp(ctx context.Context, in *pb.SignUpRequest) (*pb.CommResponse, error) {
-	log.Printf("Received: %v, %v, %v, %v", in.Username, in.Password, in.Profilename, in.Profileimg)
 	user := Userinfo {
 		Password: in.Password,
 		Profilename: in.Profilename,
